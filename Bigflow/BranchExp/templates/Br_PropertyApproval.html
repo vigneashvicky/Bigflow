@@ -1,0 +1,823 @@
+{% extends 'Shared/mainLayout.html' %}
+{% load static from staticfiles %}
+{% block title %}Branch Property Create {% endblock %}
+{% block content %}
+{% csrf_token %}
+{% verbatim %}
+
+<div class="maincontent">
+    <div ng-app="makersummary" ng-controller="ctrlsummary" class="container container1">
+        <div class="row">
+            <div class="row-header col-lg-12 col-sm-12">
+                <h4>Branch Property Approval</h4>
+            </div>
+        </div>
+        <form role="form" name="pro_create">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="col-md-4 col-lg-4 col-sm-4">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Property Code</label>
+                            <input ng-model="pro_code"
+                                   ng-change="ACselectchange)"
+                                   maxlength="60" disabled/>
+                        </md-input-container>
+                    </div>
+
+                    <div class="col-md-4 col-lg-4 col-sm-4">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Property Name</label>
+                            <input ng-model="pro_name"
+                                   ng-change="ACselectchange(selectedtype)"
+                                   maxlength="60" disabled/>
+                        </md-input-container>
+                    </div>
+
+                    <div class="col-md-4 col-lg-4 col-sm-4">
+
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Property Type</label>
+                            <md-select ng-model="pro_types" md-on-close="clearSearchTerm()"
+                                       data-md-container-class="selectdemoSelectHeader" ng-required="true" disabled>
+                                <md-select-header class="demo-select-header">
+                                    <input ng-model="searchTerm" type="search"
+                                           placeholder="Search for a Property Type.."
+                                           class="demo-header-searchbox md-text"/>
+                                </md-select-header>
+                                <md-optgroup label="Customer Category">
+                                    <md-option ng-value="p.metadata_value" ng-repeat="p in pro_val |
+                                         filter:searchTerm">{{ p.metadata_value}}
+                                    </md-option>
+                                </md-optgroup>
+                            </md-select>
+                        </md-input-container>
+                        </md-input-container>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="col-md-4 col-lg-4 col-sm-4">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Landmark </label>
+                            <input ng-model="pro_landmark"
+                                   ng-change="ACselectchange(selectedtype,supplier_gid,invoicenum,invoiceamt,invdate,crno)"
+                                   maxlength="255" disabled/>
+                        </md-input-container>
+                    </div>
+
+                    <div class="col-md-4 col-lg-4 col-sm-4">
+
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Incharge</label>
+                            <md-select ng-model="pro_incharge" md-on-close="clearSearchTerm()"
+                                       data-md-container-class="selectdemoSelectHeader" ng-required="true" disabled>
+                                <md-select-header class="demo-select-header">
+                                    <input ng-model="searchTerm" type="search"
+                                           placeholder="Search for a Incharge.."
+                                           class="demo-header-searchbox md-text">
+                                </md-select-header>
+                                <md-optgroup label="Customer Category">
+                                    <md-option ng-value="inch.employee_gid" ng-repeat="inch in employee |
+                                         filter:searchTerm">{{ inch.employee_name}}
+                                    </md-option>
+                                </md-optgroup>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+
+                    <div class="col-md-4 col-lg-4 col-sm-4">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Alternative Incharge</label>
+                            <md-select ng-model="pro_alt_incharge" md-on-close="clearSearchTerm()"
+                                       data-md-container-class="selectdemoSelectHeader" ng-required="true" disabled>
+                                <md-select-header class="demo-select-header">
+                                    <input ng-model="searchTerm" type="search"
+                                           placeholder="Search for a Alternative Incharge.."
+                                           class="demo-header-searchbox md-text">
+                                </md-select-header>
+                                <md-optgroup label="Customer Category">
+                                    <md-option ng-value="emp.employee_gid" ng-repeat="emp in employee |
+                                    filter:searchTerm">{{ emp.employee_name}}
+                                    </md-option>
+                                </md-optgroup>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-12 col-lg-12 col-sm-12">
+
+                    <div class="col-md-4 col-lg-4 col-sm-4">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Property Usage</label>
+                            <md-select ng-model="select" md-on-close="clearSearchTerm()"
+                                       data-md-container-class="selectdemoSelectHeader" disabled>
+                                <md-select-header class="demo-select-header">
+                                    <input ng-model="searchTerm" type="search"
+                                           placeholder="Search for a PropertyUsage.."
+                                           class="demo-header-searchbox md-text">
+                                </md-select-header>
+                                <md-optgroup label="Customer Category">
+                                    <md-option ng-value="emp.employee_gid" ng-repeat="emp in employe |
+                                    filter:searchTerm">{{ emp.employee_name}}
+                                    </md-option>
+                                </md-optgroup>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+
+                    <div class="col-md-4 col-lg-4 col-sm-4">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Controll Office</label>
+                            <md-select ng-model="select" md-on-close="clearSearchTerm()"
+                                       data-md-container-class="selectdemoSelectHeader" disabled>
+                                <md-select-header class="demo-select-header">
+                                    <input ng-model="searchTerm" type="search"
+                                           placeholder="Search for a PropertyUsage.."
+                                           class="demo-header-searchbox md-text">
+                                </md-select-header>
+                                <md-optgroup label="Customer Category">
+                                    <md-option ng-value="emp.employee_gid" ng-repeat="emp in employe |
+                                    filter:searchTerm">{{ emp.employee_name}}
+                                    </md-option>
+                                </md-optgroup>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+
+                    <div class="col-md-4 col-lg-4 col-sm-4">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Control Officer</label>
+                            <md-select ng-model="pro_ctrl_offcier" md-on-close="clearSearchTerm()"
+                                       data-md-container-class="selectdemoSelectHeader" ng-required="true" disabled>
+                                <md-select-header class="demo-select-header">
+                                    <input ng-model="searchTerm" type="search"
+                                           placeholder="Search for a Control Officer.."
+                                           class="demo-header-searchbox md-text">
+                                </md-select-header>
+                                <md-optgroup label="Customer Category">
+                                    <md-option ng-value="emp.employee_gid" ng-repeat="emp in employee |
+                                     filter:searchTerm">{{ emp.employee_name}}
+                                    </md-option>
+                                </md-optgroup>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-12 col-lg-12 col-sm-12">
+                    <div class="col-md-4 col-lg-4 col-sm-4">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Photo 1 </label>
+                            <input ng-model="photo1"
+                                   ng-change="ACselectchange(icenum)"
+                                   maxlength="60" disabled/>
+                        </md-input-container>
+                    </div>
+
+                    <div class="col-md-4 col-lg-4 col-sm-4">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Photo 2</label>
+                            <input ng-model="photo2"
+                                   ng-change="ACselenge(invdate,crno)"
+                                   maxlength="60" disabled/>
+                        </md-input-container>
+                    </div>
+
+                    <div class="col-md-4 col-lg-4 col-sm-4">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Remarks</label>
+                            <input ng-model="pro_remarks"
+                                   ng-change="ACselectchange(invoiceamt,invdate,crno)"
+                                   maxlength="60" disabled/>
+                        </md-input-container>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 col-lg-12 col-sm-12">
+                    <div class="col-md-4 col-lg-4 col-sm-4">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Location</label>
+                            <md-select ng-model="select" md-on-close="clearSearchTerm()"
+                                       data-md-container-class="selectdemoSelectHeader" disabled>
+                                <md-select-header class="demo-select-header">
+                                    <input ng-model="searchTerm" type="search"
+                                           placeholder="Search for a PropertyUsage.."
+                                           class="demo-header-searchbox md-text">
+                                </md-select-header>
+                                <md-optgroup label="Customer Category">
+                                    <md-option ng-value="emp.employee_gid" ng-repeat="emp in employe |
+                                    filter:searchTerm">{{ emp.employee_name}}
+                                    </md-option>
+                                </md-optgroup>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+
+                    <div class="col-md-4" layout="row" style="margin-top:30px">
+                        Active
+                        <div class="col-md-3">
+                            <md-radio-group layout="row" ng-model="Partner.activecontractype" disabled>
+                                <md-radio-button value="Yes" class="md-primary">Yes</md-radio-button>
+                                <md-radio-button value="No">No</md-radio-button>
+                            </md-radio-group>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-lg-4 col-sm-4">
+                        <input class="ng-hide" id="input-file-id" multiple type="file"/>
+                        <label for="input-file-id" class="md-button md-raised md-primary">choose photo</label>
+                        <md-button class="md-raised custbutton" ng-click="submit(pop)">
+                            Upload Photo
+                        </md-button>
+                    </div>
+                </div>
+            </div>
+            <br/>
+
+
+            <div class="col-md-12">
+                <md-subheader class="md-accent">Address
+                </md-subheader>
+            </div>
+
+            <div class="col-md-12">
+                <div class="col-md-3">
+                    <md-input-container class="md-block inputcontainer">
+                        <label>Address Line 1</label>
+                        <input ng-model="addline1" capitalize maxlength="128" disabled/>
+                    </md-input-container>
+                </div>
+
+                <div class="col-md-3">
+                    <md-input-container class="md-block inputcontainer">
+                        <label>Address Line 2</label>
+                        <input ng-model="addline2" capitalize maxlength="128" disabled/>
+                    </md-input-container>
+                </div>
+
+                <div class="col-md-3">
+                    <md-input-container class="md-block inputcontainer">
+                        <label>Address Line 3</label>
+                        <input ng-model="addline3" capitalize maxlength="128" disabled/>
+                    </md-input-container>
+                </div>
+
+                <div class="col-md-3">
+                    <md-input-container class="md-block inputcontainer">
+                        <label>State</label>
+                        <md-select ng-model="selectedState" ng-change="state_clk(selectedState,'customer')"
+                                   md-on-close="clearSearchTerm()"
+                                   data-md-container-class="selectdemoSelectHeader" disabled>
+                            <md-select-header class="demo-select-header">
+                                <input ng-model="serchTerm" type="search" placeholder="Search for a State.."
+                                       class="demo-header-searchbox md-text">
+                            </md-select-header>
+                            <md-optgroup label="State">
+                                <md-option ng-value="c.state_gid" ng-repeat="c in stateddl |
+                                    filter:serchTerm">{{c.state_name}}
+                                </md-option>
+                            </md-optgroup>
+                        </md-select>
+                    </md-input-container>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="col-md-3">
+                    <md-input-container class="md-block inputcontainer">
+                        <label>District</label>
+                        <md-select ng-model="selecteddistrict" ng-change="district_clk(selecteddistrict)"
+                                   md-on-close="clearSearchTerm()"
+                                   data-md-container-class="selectdemoSelectHeader" disabled>
+                            <md-select-header class="demo-select-header">
+                                <input ng-model="sarchTerm" type="search" placeholder="Search for a District.."
+                                       class="demo-header-searchbox md-text">
+                            </md-select-header>
+                            <md-optgroup label="State">
+                                <md-option ng-value="c.district_gid" ng-repeat="c in distritddl |
+                                   filter:sarchTerm">{{c.district_name}}
+                                </md-option>
+                            </md-optgroup>
+                        </md-select>
+                    </md-input-container>
+                </div>
+                <div class="col-md-3">
+                    <md-input-container class="md-block inputcontainer">
+                        <label>City</label>
+                        <md-select ng-model="selectedcity" ng-change="city_clk(selectedcity)"
+                                   md-on-close="clearSearchTerm()"
+                                   data-md-container-class="selectdemoSelectHeader" disabled>
+                            <md-select-header class="demo-select-header">
+                                <input ng-model="srchTerm" type="search" placeholder="Search for a City.."
+                                       class="demo-header-searchbox md-text">
+                            </md-select-header>
+                            <md-optgroup label="City">
+                                <md-option ng-value="c.city_gid" ng-repeat="c in city1 |
+              filter:srchTerm">{{c.City_Name}}
+                                </md-option>
+                            </md-optgroup>
+                        </md-select>
+                    </md-input-container>
+                </div>
+                <div class="col-md-3">
+                    <md-input-container class="md-block inputcontainer">
+                        <label>Pincode</label>
+                        <input ng-model="pcode" ng-pattern="pincodevalidation" disabled/>
+                    </md-input-container>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <br>
+                <div class="col-md-4"></div>
+                <div class="col-md-2">
+                    <md-button class="md-raised custbutton" value="Edit"
+                               ng-click="br_property_approv(pro.property_gid)" ng-disabled="">
+                        APPROV
+                    </md-button>
+                </div>
+
+<!--                <div class="col-md-2">-->
+<!--                    <md-button class="md-raised" value="close" data-dismiss="modal"-->
+<!--                               aria-label="Close">Cancel-->
+<!--                    </md-button>-->
+<!--                </div>-->
+
+                <div class="col-md-2">
+                    <md-button class="md-raised md-warn" value="submit" ng-click="br_property_reject(pro.property_gid)">
+                        REJECT
+                    </md-button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+
+{% endverbatim %}
+<style>
+
+.btn-default.btn-on.active{background-color: #5BB75B;color: white;}
+.btn-default.btn-off.active{background-color: #DA4F49;color: white;}
+
+.btn-default.btn-on-1.active{background-color: #006FFC;color: white;}
+.btn-default.btn-off-1.active{background-color: #DA4F49;color: white;}
+
+.btn-default.btn-on-2.active{background-color: #00D590;color: white;}
+.btn-default.btn-off-2.active{background-color: #A7A7A7;color: white;}
+
+.btn-default.btn-on-3.active{color: #5BB75B;font-weight:bolder;}
+.btn-default.btn-off-3.active{color: #DA4F49;font-weight:bolder;}
+
+.btn-default.btn-on-4.active{background-color: #006FFC;color: #5BB75B;}
+.btn-default.btn-off-4.active{background-color: #DA4F49;color: #DA4F49;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</style>
+
+
+<script>
+    var app=angular.module('makersummary',['ngMaterial','ui.bootstrap','AppCommon','rzTable']).config(function($httpProvider) {
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+
+});
+
+app.controller('ctrlsummary', ['$scope', '$filter', '$mdDateLocale', 'testService', '$window', '$mdDialog', '$element',
+    function($scope, $filter, $mdDateLocale, testService, $window, $mdDialog, $element) {
+
+
+         load_address();
+         load_property_details();
+         load_property_dropdown();
+         load_property_type();
+
+<!--    loading address field like state,district,city,pincode-->
+      function load_address() {
+
+       var sttddl = testService.getstateddl()
+       sttddl.then(function(result) {
+            $scope.stateddl = [];
+            $scope.stateddl = JSON.parse(result.data);
+            $scope.locstate = JSON.parse(result.data);
+
+
+          }),
+            function() {
+                alert('no data');
+            };
+       };
+
+
+        $scope.state_clk = function(state_gid, type) {
+        debugger;
+
+            var distddl = testService.getdistddl(state_gid)
+
+            distddl.then(function(result) {
+                    if (type == 'address') {
+                        $scope.adistrictddl = [];
+                        $scope.adistrictddl = JSON.parse(result.data);
+                    } else {
+                        $scope.distritddl = [];
+                        $scope.distritddl = JSON.parse(result.data);
+                    }
+                }),
+                function() {
+                    alert('no data');
+                };
+        };
+
+        $scope.district_clk = function(district_gid, type) {
+            var ctyddl = testService.getcityddl(district_gid)
+            ctyddl.then(function(result) {
+                    if (type == 'address') {
+                        $scope.acity1 = [];
+                        $scope.acity1 = JSON.parse(result.data);
+                    } else {
+                        $scope.city1 = [];
+                        $scope.city1 = JSON.parse(result.data);
+                    }
+                }),
+                function() {
+                    alert('no data');
+                };
+        };
+
+        $scope.city_clk = function(city_gid, type) {
+            var pincd = testService.getpincode(city_gid)
+            pincd.then(function(result) {
+                    if (type == 'address') {
+
+                        var apincde = [];
+                        apincde = JSON.parse(result.data);
+                        $scope.add.pincode1 = apincde[0].pincode_no;
+                    } else {
+                        var pincde = [];
+                        pincde = JSON.parse(result.data);
+                        $scope.pcode = pincde[0].pincode_no;
+                    }
+                }),
+                function() {
+                    alert('no data');
+                };
+        };
+
+<!--        address field completed-->
+
+<!--property addredd details-->
+        function load_property_details(){
+
+          this.getstateddl = function(d) {
+            var response = $http.get(Appname + "/stateddl/");
+            return response;
+           }
+        }
+
+
+<!--            approv details-->
+
+           $scope.br_property_approv=function(property_gid){
+            var data={"params":
+                        {
+                          "filters":
+                            {
+
+                                "property_gid":$scope.pro_gid,
+                                "property_status":"APPROVED",
+                                "ADDRESS":[{ }]
+                            },
+
+                            "classification":
+                                 {
+                                 "Entity_Gid":56,
+                                 "Create_by":59
+                                  }
+                        }
+            };
+
+            var data_int={
+                         "Type":"update",
+                         "Sub_Type":"property",
+                         "data":data
+             };
+
+            var property_save = testService.save_property_detail(data_int);
+
+                    property_save.then(function(result) {
+                        if (result.data === "SUCCESS") {
+                        alert("Succesfully Approved");
+                        $window.location.href = "BranchExp/Br_MakerSummary/";
+
+                        } else {
+                      alert("Data Not Inserted");
+                      }
+                    }, function(err) {
+                      alert('Data Not Inserted');
+                    });
+
+             };
+
+
+<!--            end approv deatils-->
+
+
+<!--            rejected details-->
+
+            $scope.br_property_reject=function(property_gid){
+              var data={"params":
+                        {
+                          "filters":
+                            {
+
+                                "property_gid":$scope.pro_gid,
+                                "property_status":"REJECTED",
+                                "ADDRESS":[{ }]
+                            },
+
+                            "classification":
+                                 {
+                                 "Entity_Gid":56,
+                                 "Create_by":59
+                                  }
+                        }
+            };
+
+             var data_int={
+                 "Type":"update",
+                 "Sub_Type":"property",
+                 "data":data
+            };
+
+            var property_save = testService.save_property_detail(data_int);
+
+                    property_save.then(function(result) {
+                        if (result.data === "SUCCESS") {
+                        alert("Rejected");
+                         $window.location.href = "BranchExp/Br_MakerSummary/";
+
+                        } else {
+                      alert("Data Not Inserted");
+                      }
+                    }, function(err) {
+                      alert('Data Not Inserted');
+                    });
+
+             };
+
+
+<!--            end rejected deatils-->
+
+
+<!--             property drapdown details-->
+
+            function load_property_dropdown(){
+                var employee = testService.getemployee();
+                employee.then(function(result) {
+                var employee_data = JSON.parse(result.data)
+                $scope.employee = employee_data;
+                 },
+                function(err) {
+                     alert('No data!.');
+                });
+
+            };
+
+
+<!--            update deatils-->
+     var pro=[];
+        if (sessionStorage.getItem('pro_update') != null) {
+        var pro_update = JSON.parse(sessionStorage.getItem('pro_update'));
+        pro_gid = pro_update.pro_gid;
+        $scope.update = pro_update.view;
+
+        <!--sessionStorage.clear()-->
+
+             var data={"params":
+                        {
+                          "filters":{"property_gid":pro_gid },
+                          "classification":{ }
+                        }
+            };
+             var data_init={
+                         "Type":"PROPERTY",
+                         "Sub_Type":"SUMMARY",
+                         "data":data
+             }
+
+        var pro_det = testService.pro_get_det(data_init)
+            pro_det.then(function(result) {
+            $scope.edit_disabled=true;
+
+            $scope.pro = result.data.DATA;
+
+            $scope.pro_gid = $scope.pro[0].property_gid;
+            $scope.pro_code = $scope.pro[0].property_code;
+            $scope.pro_name=$scope.pro[0].property_name;
+            $scope.pro_types=$scope.pro[0].property_type;
+            $scope.pro_incharge=$scope.pro[0].property_inchargegid;
+            $scope.pro_alt_incharge=$scope.pro[0].property_alternativeinchargegid;
+            $scope.pro_remarks=$scope.pro[0].property_remarks;
+            $scope.pro_ctrl_offcier=$scope.pro[0].Property_controlby;
+            $scope.pro_landmark=$scope.pro[0].property_landmark;
+            $scope.address_gid=$scope.pro[0].address_gid;
+
+
+
+            $scope.addline1=$scope.pro[0].address_1;
+            $scope.addline2=$scope.pro[0].address_2;
+            $scope.addline3=$scope.pro[0].address_3;
+
+            $scope.selectedState = $scope.pro[0].address_state_gid;
+            $scope.state_clk($scope.selectedState);
+            $scope.selecteddistrict = $scope.pro[0].address_district_gid;
+            $scope.district_clk($scope.selecteddistrict);
+            $scope.selectedcity =$scope.pro[0].address_city_gid;
+            $scope.city_clk($scope.selectedcity);
+            $scope.pcode = $scope.pro[0].address_pincode;
+
+             debugger;
+
+
+        }, function() {
+            alert('no data');
+        });
+    } else {
+      $scope.edit_disabled=false;
+    $scope.Customer_disable = false;
+        $scope.update = '';
+    }
+    if ($scope.update) {
+        $scope.title = 'Edit'
+    } else {
+
+        $scope.title = 'Create'
+    }
+
+<!--           update end-->
+
+
+            function load_property_type(){
+             var params={
+                "Table_name": "gal_mst_tmetadata",
+                "Column_1": "metadata_gid,metadata_value",
+                "Column_2": "",
+                "Where_Common": "metadata",
+                "Where_Primary": "columnname",
+                "Primary_Value": "property_type",
+                "Order_by": "value"
+             }
+               var data_init={
+                 "Params":params,
+                 "Type":"PRODUCT"
+                }
+
+
+               var property_type=testService.getproperty_type(data_init);
+                property_type.then(function(result){
+                   $scope.pro_type_data=[];
+
+                    $scope.property_types=result.data;
+                    $scope.pro_val=$scope.property_types;
+                 },
+                  function(err) {
+                     alert('No data!');
+                });
+            };
+
+
+
+    }
+]);
+
+app.service("testService", function ($http) {
+
+<!--    Address field serverice -->
+     this.getstateddl = function(d) {
+            var response = $http.get(Appname + "/stateddl/");
+            return response;
+
+        }
+     this.getdistddl = function(state_gid) {
+
+        var response = $http.get(Appname + "/districtddl/", {
+            params: {
+                "state_gid": state_gid
+            }
+        });
+        return response;
+     }
+
+     this.getcityddl = function(district_gid) {
+        var response = $http.get(Appname + "/cityddl/", {
+            params: {
+                "district_gid": district_gid
+            }
+        });
+        return response;
+
+     }
+     this.getpincode = function(city_gid) {
+        var response = $http.get(Appname + "/pincode/", {
+            params: {
+                "city_gid": city_gid
+            }
+
+        });
+        return response;
+     }
+
+
+<!--  end  Address field serverice -->
+
+
+<!--save details-->
+
+        this.save_property_detail = function(data) {
+        <!--        var url="Br_property?Type="+JSON.stringify(type)+"&Sub_Type="+JSON.stringify(sub_type)+"&filters="+JSON.stringify(property_table_details)+"&classification="+JSON.stringify(property_entity_gid);-->
+<!--         $window.location.href = url;-->
+
+        var response = $http.post(Appname + "/insertNewBranchDetails/", data);
+        return response;
+    }
+
+<!--end deatils-->
+
+<!--        property_type details drapdown-->
+
+         this.getproperty_type=function(data_init){
+           var response=$http.post(Appname+"/GetpropertyType/",data_init);
+            return response;
+         }
+
+<!--         property deatils like inchage, alternative incharage , controll officer-->
+
+ this.getemployee=function(){
+        var response=$http.get(Appname+"/empddl/");
+
+        return response;
+     }
+
+<!--     get property details-->
+     this.pro_get_det=function(data_init){
+            var response=$http.post(Appname +"/get_pr_details/",data_init);
+                return response;
+                debugger;
+     }
+<!--       end property details get-->
+
+
+});
+
+
+
+</script>
+
+
+{% endblock %}

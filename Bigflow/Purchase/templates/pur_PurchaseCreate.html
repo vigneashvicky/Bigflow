@@ -1,0 +1,1424 @@
+{% extends 'Shared/mainLayout.html' %}
+{% load static from staticfiles %}
+{% block title %} Purchase {% endblock %}
+{% block content %}
+{% csrf_token %}
+{% verbatim %}
+
+<div class="maincontent">
+	<div ng-app="Appprcreate" ng-controller="Ctrlprcreate" class="container container1" ng-cloak>
+		<div class="row">
+			<div class="row-header col-lg-12 col-sm-12">
+				<h4>PR Creation</h4>
+			</div>
+		</div>
+		</br>
+		<div class="row">
+			<div class="col-md-12">
+				<form id="create" name="prform" method="post">
+
+					<div class="col-md-2">
+						<md-input-container class="md-block" flex-gt-sm>
+							<label>MEP Number</label>
+							<input ng-model="pr.mepnumber" maxlength="12">
+						</md-input-container>
+					</div>
+					<div class="col-md-3">
+						<md-input-container class="md-block inputcontainer">
+							<label>Product Category</label>
+							<md-select ng-model="pr.selectedcustcate" ng-disabled="disable"
+								md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader"
+								ng-change="cat_type(pr.selectedcustcate)" required>
+								<md-select-header class="demo-select-header">
+									<input ng-model="searchTerm1" type="search"
+										placeholder="Search for a Product Category.."
+										class="demo-header-searchbox md-text"
+										onkeydown="mdSelectOnKeyDownOverride(event)">
+								</md-select-header>
+								<md-optgroup label="Product Category">
+									<md-option ng-value="c.productcategory_gid"
+										ng-selected="productcategory_gid == c.productcategory_gid" ng-repeat="c in prcat_list |
+                                        filter:searchTerm1">{{c.productcategory_name}}
+									</md-option>
+								</md-optgroup>
+							</md-select>
+						</md-input-container>
+					</div>
+					<div class="col-lg-1 col-sm-1">
+						<md-input-container class="md-block inputcontainer">
+							<md-checkbox ng-model="pr.dts" ng-checked="check" ng-change="dts(pr.dts)">
+								DTS
+							</md-checkbox>
+						</md-input-container>
+					</div>
+					<div class="col-md-3">
+						<md-input-container class="md-block inputcontainer">
+							<label>Type</label>
+							<md-select ng-model="pr.selectedcustcattype" ng-disabled="disable"
+								md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader"
+								ng-change="cat_type_product(pr.selectedcustcattype,pr.dts)" required>
+								<md-select-header class="demo-select-header">
+									<input ng-model="searchTerm2" type="search"
+										placeholder="Search for a Product Type.." class="demo-header-searchbox md-text"
+										onkeydown="mdSelectOnKeyDownOverride(event)">
+								</md-select-header>
+								<md-optgroup label="Type">
+									<md-option ng-value="c.producttype_gid"
+										ng-selected="producttype_gid == c.producttype_gid" ng-repeat="c in prcat_type_list |
+                                        filter:searchTerm2">{{c.producttype_name}}
+									</md-option>
+								</md-optgroup>
+							</md-select>
+						</md-input-container>
+					</div>
+
+					<div class="col-md-3">
+						<md-input-container class="md-block inputcontainer">
+							<label>product Name</label>
+							<md-select ng-model="pr.product1" ng-disabled="disable" md-on-close="clearSearchTerm()"
+								data-md-container-class="selectdemoSelectHeader" ng-change="p_supplier(pr.product1)"
+								required>
+								<md-select-header class="demo-select-header">
+									<input ng-model="searchTerm3" type="search"
+										placeholder="Search for a product Name.." class="demo-header-searchbox md-text"
+										onkeydown="mdSelectOnKeyDownOverride(event)">
+								</md-select-header>
+								<md-optgroup label="product Name">
+									<md-option ng-value="c" ng-selected="product_gid == c.product_gid" ng-repeat="c in productdata |
+                                        filter:searchTerm3">{{c.product_displayname}}
+									</md-option>
+								</md-optgroup>
+							</md-select>
+						</md-input-container>
+					</div>
+			</div>
+			<div class="col-lg-12">
+
+				<div class="col-md-3">
+					<md-input-container class="md-block inputcontainer">
+						<label>Commodity Name</label>
+						<md-select ng-model="pr.commodity" ng-disabled="disable" md-on-close="clearSearchTerm()"
+							data-md-container-class="selectdemoSelectHeader">
+							<md-select-header class="demo-select-header">
+								<input ng-model="searchTerm4" type="search" placeholder="Search for a Commodity Name.."
+									class="demo-header-searchbox md-text" onkeydown="mdSelectOnKeyDownOverride(event)">
+							</md-select-header>
+							<md-optgroup label="Commodity Name">
+								<md-option ng-value="c" ng-selected="commodity_gid == c.commodity_gid" ng-repeat="c in commodity_list |
+                                filter:searchTerm4">{{c.commodity_name}}
+								</md-option>
+							</md-optgroup>
+						</md-select>
+					</md-input-container>
+				</div>
+				<div class="col-md-3">
+					<md-input-container class="md-block inputcontainer">
+						<label>Supplier Name</label>
+						<md-select ng-model="pr.ddlproduct" ng-disabled="disable" md-on-close="clearSearchTerm()"
+							data-md-container-class="selectdemoSelectHeader">
+							<md-select-header class="demo-select-header">
+								<input ng-model="searchTermS" type="search" placeholder="Search for a Supplier Name.."
+									class="demo-header-searchbox md-text" onkeydown="mdSelectOnKeyDownOverride(event)">
+							</md-select-header>
+							<md-optgroup label="Supplier Name">
+								<md-option ng-value="supplier" ng-selected="supplier_gid == supplier.supplier_gid"
+									ng-repeat="supplier in Prsupplier_list |
+                         filter:searchTermS">{{supplier.supplier_name}}
+								</md-option>
+							</md-optgroup>
+						</md-select>
+					</md-input-container>
+				</div>
+				<div class="col-md-2">
+					<md-input-container class="md-block inputcontainer">
+						<label>Branch code</label>
+						<md-select ng-model="pr.branch_gid" ng-disabled="disable" md-on-close="clearSearchTerm()"
+							data-md-container-class="selectdemoSelectHeader" ng-change="branchnameget(pr.branch_gid)">
+							<md-select-header class="demo-select-header">
+								<input ng-model="searchTerm5" type="search" placeholder="Search for a Branch Name.."
+									class="demo-header-searchbox md-text" onkeydown="mdSelectOnKeyDownOverride(event)">
+							</md-select-header>
+							<md-optgroup label="Branch Name">
+								<md-option ng-value="c.branch_gid" ng-selected="branch_gid == c.branch_gid" ng-repeat="c in brncode |
+                                filter:searchTerm5">{{c.branch_code}}
+								</md-option>
+							</md-optgroup>
+						</md-select>
+					</md-input-container>
+
+				</div>
+
+				<div class="col-md-3 col-sm-12 col-xs-12">
+					<md-input-container class="md-block inputcontainer">
+						<label class="md-required">Branch Name </label>
+						<input ng-model="bname" maxlength="16" ng-disabled="true" capitalize="" required="">
+					</md-input-container>
+				</div>
+
+
+
+
+				<div class="col-md-1 col-xs-3 text-center" style="margin-top: 17px;">
+					<md-button class="md-fab md-mini md-primary custbutton" ng-click="addproduct(pr)"
+						ng-disabled="prform.$invalid" ng-hide="disable">
+						<md-icon>add</md-icon>
+						<md-tooltip>Create New</md-tooltip>
+					</md-button>
+				</div>
+			</div>
+		</div>
+		</form>
+		</br>
+		<div class="col-md-12">
+			<form name="demoForm" novalidate>
+				<div class="row table-responsive">
+					<div class="col-md-12 col-lg-12 col-sm-12">
+						<table class="table table-striped table-bordered table-condensed table-hover md-primary"
+							md-progress="deferred">
+							<thead class="header">
+								<tr>
+									<th>S.No</th>
+									<th>Product Name</th>
+									<th>Commodity Name</th>
+									<th>Supplier Name</th>
+									<th>Branch</th>
+									<th>UOM</th>
+									<th>Quantity</th>
+									<th>Unit Price</th>
+									<th>Amount</th>
+									<th>Cc Bs</th>
+									<th ng-hide="disable">Action</th>
+								</tr>
+							</thead>
+							<tbody ng-init="total = 0">
+								<tr ng-repeat="pur in purchase.slice(((currentPage-1)*itemsPerPage), ((currentPage)*itemsPerPage))  | filter:searchquery  "
+									ng-if="pur.detail_edit!='R'">
+									<td>
+										<center>{{((currentPage-1)*itemsPerPage)+$index+1}}</center>
+									</td>
+
+									<td>{{pur.product_name}}</td>
+									<td>{{pur.commodity_name}}</td>
+									<td>{{pur.supplier_name}}</td>
+									<td>{{pur.branch_name}}</td>
+									<td>{{pur.uom_name}}</td>
+									<td align="right">
+										<form name="demoForm_form">
+											<input align="right" style="width:102px" name="qty" type="text"
+												maxlength="4" ng-model="pur.quantity" numbers-only class="form-control"
+												ng-blur="amount(pur)" required>
+											<div ng-messages="demoForm_form.qty.$error">
+												<div ng-message="number">Should be a number</div>
+												<div ng-message="max">your quantity order exceeds 10000</div>
+												<div ng-message="min">your quantity should not be zero</div>
+											</div>
+										</form>
+									</td>
+									<td align="right">{{pur.supplierproduct_unitprice}}</td>
+
+									<td ng-model="pur.totalamt" align="right">
+										<span ng-if="pur.quantity != undefined"
+											ng-model="pur.totalamt">{{pur.quantity*pur.supplierproduct_unitprice}}</span>
+									</td>
+									<input type="hidden" ng-model="new" name="custId">
+									<td align="center" ng-if="pur.quantity==undefined||pur.quantity==0">
+										<a><i class="material-icons">send</i></a></td>
+									<td align="center" ng-if="pur.quantity>0"><a style="color:green;"
+											ng-click="Addccbs($index)"><i class="material-icons">send</i></a>
+									</td>
+
+
+									<td ng-hide="disable">
+										<span class="editlink"
+											ng-click="purdelete(pur,pur.prdetails_gid,((currentPage-1)*itemsPerPage)+ $index,prdelete)">
+											<i class="material-icons">delete</i>
+											<md-tooltip>Delete</md-tooltip>
+										</span>
+									</td>
+									<!-- <td ng-init="pur.total = 0">
+                                             Total Amount:{{pur.total = pur.unitprice * pur.quantity}}
+                                            tot:{{pur.total= pur.total + pur.unitprice * pur.quantity }}
+                                    </td>
+                                </tr>-->
+
+								<tr ng-show="purchase.length ==  0">
+									<td class="warning" colspan="12">
+										No Records Found.
+									</td>
+								</tr>
+								<tr ng-show="purchase.length >0">
+									<td colspan="8" align="right"><b>Total</b></td>
+									<td colspan="1" align="left" style="background: white;">
+										<span ng-if="purchase.length == 0"><b>{{total}}</b></span>
+										<span ng-if="purchase.length > 0"><b>{{loaddata()| number:2}}</b></span>
+									</td>
+									<input type="hidden" id="postId" value="34657">
+								</tr>
+							<tfoot>
+								<tr>
+									<td colspan="12">
+										<ul uib-pagination total-items="purchase.length" ng-model="currentPage"
+											max-size="maxSize" class="pagination-sm" boundary-links="true"
+											items-per-page="itemsPerPage"></ul>
+
+									</td>
+								</tr>
+							</tfoot>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="col-md-12 ">
+					<div class="col-md-9 "></div>
+					<form name="demoForm_form" novalidate>
+						<div class="col-md-3">
+							<md-input-container class="md-block inputcontainer">
+								<label>Choose Approver</label>
+								<md-select ng-model="pur.limi" ng-disabled="disable" md-on-close="clearSearchTerm()"
+									data-md-container-class="selectdemoSelectHeader">
+									<md-select-header class="demo-select-header">
+										<input ng-model="searchTe" type="search"
+											placeholder="Search for a Approver Name.."
+											class="demo-header-searchbox md-text"
+											onkeydown="mdSelectOnKeyDownOverride(event)">
+									</md-select-header>
+									<md-optgroup label="Choose Approver">
+										<md-option ng-value="c" ng-selected="employee_name == c.employee_name"
+											ng-repeat="c in limitamt|
+                                    filter:searchTe">{{c.employee_code}} {{c.employee_name}} {{c.delmat_limit}}
+										</md-option>
+									</md-optgroup>
+								</md-select>
+							</md-input-container>
+						</div>
+					</form>
+
+				</div>
+				<div class="col-md-12">
+					<md-input-container class="md-block inputcontainer">
+						<!-- <label class="md-required">Branch Name </label> -->
+						<input ng-model="e" maxlength="16" ng-disabled="true" capitalize="" required="">
+					</md-input-container>
+				</div>
+
+				<div class="col-md-12 text-right">
+					<md-button ng-click="close()" class="md-raised md-warn">Close
+						<md-tooltip>Close</md-tooltip>
+					</md-button>
+					<md-button ng-click="save_prdetailsdraft('draft',$scope.prheader_gid)"
+						ng-disabled="demoForm_form.$invalid" ng-hide="disable" class="md-primary">Draft
+						<md-tooltip>Draft</md-tooltip>
+					</md-button>
+					<md-button ng-click="save_prdetails('submit',$scope.prheader_gid,pur.limi)" ng-disabled="IsDisabled"
+						class="btn btn-info custbutton">Submit
+						<md-tooltip>Submit</md-tooltip>
+					</md-button>
+
+				</div>
+			</form>
+		</div>
+		<div ng-include="'commodityadd'"></div>
+	</div>
+</div>
+{% endverbatim %}
+<script>
+	var myApp = angular.module('Appprcreate', ['ngMaterial', 'ui.bootstrap', 'ngMessages', 'AppCommon']).config(function (
+		$httpProvider) {
+		$httpProvider.defaults.xsrfCookieName = 'csrftoken';
+		$httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+	});
+	myApp.directive('numbersOnly', function () {
+		return {
+			require: 'ngModel',
+			link: function (scope, element, attr, ngModelCtrl) {
+				function fromUser(text) {
+					if (text) {
+						var transformedInput = text.replace(/[^0-9]/g, '');
+						if (transformedInput !== text) {
+							ngModelCtrl.$setViewValue(transformedInput);
+							ngModelCtrl.$render();
+						}
+						return transformedInput;
+					}
+					return undefined;
+				}
+				ngModelCtrl.$parsers.push(fromUser);
+			}
+		};
+	});
+	myApp.controller('Ctrlprcreate', ['$scope', '$http', 'orderByFilter', 'Serviceprcreate', '$mdDialog', '$element',
+		'$filter', '$window',
+		function ($scope, $http, orderBy, Serviceprcreate, $mdDialog, $element, $filter, $window) {
+
+			$scope.currentPage = 1;
+			$scope.maxSize = 3;
+			$scope.itemsPerPage = 10;
+			$scope.maintable = [];
+			$scope.IsHidden1 = true;
+			$scope.IsDisabled = true;
+			window.mdSelectOnKeyDownOverride = function (event) {
+				event.stopPropagation();
+			};
+			var detail = JSON.parse(sessionStorage.getItem('today'));
+			$scope.employgid = detail.employee_gid;
+			$scope.entity_gid = detail.entity_gid;
+			$scope.empcode = detail.employee_code
+			$scope.today = detail.date
+			// $scope.pr.result='PO_BRANCH';
+			$scope.ccbsddl = [];
+			$scope.Addccbs = function (index) {
+
+
+				$scope.branchdd = branchddl
+				$scope.godown = godown1
+
+
+				if ($scope.purchase[index].action == 'draft' && $scope.purchase[index].CCBS == null) {
+					$scope.purchase[index].CCBS = [];
+					// $scope.draftdata[index].CCBS=[];
+					// $scope.CCBS_DETAILS=[];
+				}
+				$scope.CCBS_DETAILS = $scope.purchase[index].CCBS;
+				$scope.ccbsddl = $scope.purchase[index].CCBS;
+				$scope.ccbsindex = index;
+				$currentindex = index;
+				$scope.allocatedqty = $scope.purchase[index].quantity;
+
+
+				modalshow('mdl_present1');
+			}
+			//pop up data bsname
+			$scope.prc = [];
+			//$scope.prc.tname='';
+
+			//  $scope.ccbstocb=function(cc,bbb){
+			//
+			//     if(cc!=undefined){
+			//
+			//         var r= $filter('filter')($scope.bb, {'tcc_gid': parseInt(cc)},true);
+			//         $scope.prc.tname = r[0].tcc_code;
+			// 		// $scope.bb=r;
+			//         var r1= $filter('filter')($scope.tt, {'tbs_gid': parseInt(bbb)},true);
+			//         $scope.prc.bname = r1[0].tbs_code;
+
+			//     }
+			//     else{
+			//         $scope.prc.tname='';
+			//         $scope.prc.bname='';
+			//     }
+			//  }
+
+
+			$scope.bstocc = function (bs) {
+				if (bs != undefined && $scope.prc.bname != undefined) {
+					var r = $filter('filter')($scope.bb, {
+						'tcc_gid': bs
+					}, true);
+					$scope.prc.tname = r[0].tcc_code;
+					var tccgid = r[0].tcc_gid;
+					var result = $filter('filter')($scope.ccbs, {
+						'ccbs_bs': String(bs),
+						'ccbs_cc': String(tccgid)
+
+					}, true);
+					$scope.prc.cbname = result[0].ccbs_code;
+
+				} else {
+					$scope.prc.cbname = '';
+					$scope.prc.tname = '';
+				}
+			}
+			$scope.tsname = tsname1;
+			$scope.bsname = bsname1;
+			$scope.ccbsdata = ccbs1;
+
+			function godown1(query) {
+				var result = $filter('filter')($scope.deliverydd, {
+					'godown_name': query
+				});
+				return result;
+				//alert(JSON.stringify(query));
+				//$scope.employee1=result;
+			}
+
+			function branchddl(query) {
+				//
+				var result = $filter('filter')($scope.brncode, {
+					'branch_name': query
+				});
+				return result;
+				//alert(JSON.stringify(query));
+				//$scope.employee1=result;
+			}
+
+			function ccbs1(query) {
+
+				var result = $filter('filter')($scope.ccbs, {
+					'ccbs_code': query
+				});
+				return result;
+				//alert(JSON.stringify(query));
+				//$scope.employee1=result;
+			}
+
+			function tsname1(query) {
+				// debugger
+				var result = $filter('filter')($scope.bb, {
+					'tcc_code': query
+				});
+				return result;
+				//alert(JSON.stringify(query));
+				//$scope.employee1=result;
+			}
+
+			function bsname1(query) {
+
+				var result = $filter('filter')($scope.tt, {
+					'tbs_code': query
+				});
+
+
+				return result;
+				//alert(JSON.stringify(query));
+				//$scope.employee1=result;
+			}
+			//---popup--end---
+			$scope.reset = function () {
+
+				$scope.prform.$setPristine();
+				$scope.prform.$setUntouched();
+			}
+			//
+			$scope.cancel = function () {
+
+				if ($scope.totalamtccbs != $scope.allocatedqty) {
+					if(confirm('Are yoy sure to clear the records!!?'))
+						{$scope.purchase[$scope.ccbsindex].CCBS = [];
+							modalhide('mdl_present1');
+						}
+						else {
+                                return false
+                            }
+				}
+				else{
+					modalhide('mdl_present1');	}
+			};
+			$scope.prc.delivery_type = 'PO_BRANCH';
+			$scope.addccbs = function (pr, index) {
+
+
+
+				if (pr.delivery_type == undefined) {
+					pr.delivery_type = 'PO_BRANCH'
+				}
+
+				// "commodity_name":$scope.commodityname1 == undefined ||
+				//                          $scope.commodityname1 == null ||
+				//                          $scope.commodityname1 == "" ? "" :
+				//                          $scope.commodityname1.commodity_name,
+
+				$scope.p = $filter('filter')($scope.purchase[$scope.ccbsindex].CCBS, {
+					"prccbs_bs": pr.bname.tbs_code,
+					"prccbs_cc": pr.tname.tcc_code,
+					"prccbs_code": pr.cbname.ccbs_code,
+					"delivery_type": pr.delivery_type,
+					// "prccbs_reftablegid": "",
+					// "prccbs_remarks": " ",
+					"prccbs_edit": "Y" || "N"
+				}, true);
+				if ($scope.p.length > 0) {
+					alert('This Record is Already Exists');
+					return false
+				}
+				if ($scope.purchase[$scope.ccbsindex].action == 'draft' && $scope.purchase[$scope.ccbsindex]
+					.CCBS.length != 0) {
+
+
+
+					$scope.purchase[$scope.ccbsindex].CCBS.push({
+						"prccbs_bs": pr.bsdata,
+						"prccbs_cc": pr.ccdata,
+						"prccbs_code": pr.ccbsdata2,
+						"delivery_type": pr.delivery_type,
+						"prccbs_reftablegid": "",
+						"prccbs_remarks": " ",
+						"prccbs_edit": "N",
+						"prccbs_GID": 0,
+						"total": $scope.totalamtccbs
+					})
+
+
+					return false
+
+				}
+
+				if ($scope.purchase[$scope.ccbsindex].detail_edit == 'Y') {
+					$scope.purchase[$scope.ccbsindex].CCBS.push({
+						"prccbs_bs": pr.bsdata,
+						"prccbs_cc": pr.ccdata,
+						"prccbs_code": pr.ccbsdata2,
+						"delivery_type": pr.delivery_type,
+						"prccbs_reftablegid": "",
+						"prccbs_remarks": " ",
+						"prccbs_edit": "N",
+						"prccbs_GID": 0,
+
+					})
+
+
+					return false
+				}
+				$scope.purchase[$scope.ccbsindex].CCBS.push({
+					"prccbs_bs": pr.bsdata,
+					"prccbs_cc": pr.ccdata,
+					"prccbs_code": pr.ccbsdata2,
+					"delivery_type": pr.delivery_type,
+					"prccbs_reftablegid": "",
+					"prccbs_remarks": " ",
+					"prccbs_edit": "Y",
+					"total": $scope.totalamtccbs
+
+				});
+
+				//  $scope.ccbsddl.push(p)
+				if (pr.delivery_type == 'PO_BRANCH') {
+					$scope.branchdd = branchddl
+				}
+				if (pr.delivery_type == 'PO_GODOWN') {
+					$scope.godown = godown1
+				}
+			}
+
+			$scope.totalqty = function (pur) {
+				// debugger
+				// quantity
+				var sum = 0;
+				for (var i = 0; i < $scope.ccbsddl.length; i++) {
+					if ($scope.ccbsddl[i].prccbs_qty == undefined) {
+						var unity = 0;
+					} else {
+						var unity = $scope.ccbsddl[i].prccbs_qty;
+					}
+					sum = sum + parseInt(unity);
+				}
+				$scope.totalamtccbs = sum;
+				$scope.totalamtccbs;
+
+				// pur.prccbs_qty=$scope.ccbsddl[i].quantitycc;
+				//alert(JSON.stringify(sum));
+				return sum;
+			}
+
+			$scope.grandqtytotal = function () {
+				var sum = 0;
+				for (var i = 0; i <= $scope.purchase.length; i++) {
+					sum = sum + $scope.purchase[i].parseInt(quantity)
+				}
+				$scope.qty1 = sum
+				return sum;
+
+			}
+			$scope.grandccbsqty = function () {
+				var sum = 0;
+				for (var i = 0; i <= $scope.purchase.length; i++) {
+					for (var j = 0; i <= $scope.purchase.CCBS.length; j++) {
+						sum = sum + $scope.purchase[i].CCBS[j].parseInt(prccbs_qty)
+					}
+				}
+				$scope.qty2 = sum
+				return sum;
+
+			}
+
+			$scope.loaddata = function () {
+				var sum = 0;
+				for (var i = 0; i < $scope.purchase.length; i++) {
+					if ($scope.purchase[i].quantity == undefined) {
+						var unity = 0;
+					} else {
+						var unity = $scope.purchase[i].quantity;
+					}
+					sum += (unity * $scope.purchase[i].supplierproduct_unitprice)
+				}
+				$scope.totalamt = sum;
+				//alert(JSON.stringify(sum));
+				return sum;
+			}
+
+			// if($scope.purchase[0].commodity_name!=undefined)
+
+			// {
+
+			// }
+			$scope.amount = function (pur) {
+
+				var data = {
+					'delmat_commoditygid': 0
+				}
+				var params1 = {
+					'params': data,
+					'action': 'limit',
+					'type': 'pr_Dir_limit',
+					'amount': 0,
+					'commodity_name': pur.commodity_name
+				}
+				$scope.app = [];
+				$scope.limitamt = [];
+				//delmat Details
+				var limitdata = Serviceprcreate.delmat(params1);
+				limitdata.then(function (commoditylimitdataname) {
+
+					var d = pur.commodity_name;
+					$scope.limitamt = JSON.parse(commoditylimitdataname.data);
+					for (var i = 0; i < $scope.limitamt.length; i++) {
+						if ($scope.empcode == $scope.limitamt[i].employee_code) {
+							var index = i;
+							$scope.limitamt.splice(index, 1);
+							index = $scope.limitamt.length;
+						}
+					}
+				})
+			}
+			//supplier
+			$scope.supplier_click = function (gid) {
+
+				var productname = Serviceprcreate.getproductname(gid);
+				productname.then(function (productname) {
+					var result = JSON.parse(productname.data)
+					$scope.listproductnamepo = result;
+					$scope.product_check = []
+					$scope.polaterdetails = [];
+					$scope.addUserlater();
+				})
+			}
+			//pr_category
+			var prcat = Serviceprcreate.pr_category();
+
+			prcat.then(function (prcat) {
+				var prc_data = prcat.data
+				$scope.prcat_list = prc_data;
+			}, function () {
+				alert("Record Not Found")
+			});
+			//pr_type
+			$scope.cat_type = function (data) {
+
+				//var gid=data.productcategory_gid;
+				var prcat_type = Serviceprcreate.pr_categorytype(data);
+
+				prcat_type.then(function (result) {
+					var prtype_data = result.data
+					$scope.prcat_type_list = prtype_data;
+				}, function () {
+					$scope.prcat_type_list = '';
+					// alert("Record Not Found")
+				});
+			}
+			// $scope.productdat=[];
+			$scope.productdata = [];
+			// $scope.productda=[];
+			$scope.dts = function (d, data) {
+				if (data == undefined) {
+					$scope.pr.product1 = '';
+					$scope.pr.selectedcustcattype = '';
+				}
+				if (d == true) {
+					$scope.productdata = $filter('filter')(data, {
+						'supplierproduct_dts': 'Y'
+					}, true);
+					return false
+				}
+				if (d == undefined || d == '' || d == false) {
+					$scope.productdata = $filter('filter')(data, {
+						'supplierproduct_dts': 'N'
+					}, true);
+					return false
+				}
+			}
+			// $scope.dts
+			// $scope.productdata
+			//product
+			$scope.cat_type_product = function (data, d) {
+				//var gid=data.productcategory_gid;
+				var pr_product = Serviceprcreate.pr_product(data);
+
+				pr_product.then(function (result) {
+					var productdd = result.data
+					$scope.productdata1 = productdd;
+					$scope.dts(d, productdd);
+				}, function () {
+					alert("Record Not Found")
+				});
+			}
+			$scope.p_supplier = function (data) {
+				var product_json = {
+					product_gid: data.product_gid
+				}
+
+				var get_supplier = Serviceprcreate.getsupplier(0, product_json)
+				get_supplier.then(function (result) {
+					$scope.supplier_details = JSON.parse(result.data);
+					$scope.Prsupplier_list = $scope.supplier_details;
+				}, function () {
+					alert("Record Not Found")
+				});
+				//commodity .supplier_details
+				var commodity_json = {
+					Action: 'Commodityprod_Get',
+					data: {
+						"Commodityprod_Productgid": data.product_gid
+					},
+					endata: {
+						"Entity_Gid": $scope.entity_gid
+					}
+				}
+				var get_commodity = Serviceprcreate.commodity_ddl(commodity_json)
+				get_commodity.then(function (result) {
+					$scope.commodity = result.data;
+					$scope.commodity_list = $scope.commodity;
+				}, function () {
+					alert("Record Not Found")
+				});
+			}
+			//Get Branch Code
+			var brancode = Serviceprcreate.branchresult()
+			brancode.then(function (result) {
+				$scope.brncode = JSON.parse(result.data);
+			}, function () {
+				alert("Record Not Found")
+			});
+			//Branch Name
+			$scope.branchnameget = function (code) {
+
+				$scope.bbname = $filter('filter')($scope.brncode, {
+					'branch_gid': code
+				}, );
+				$scope.bname = $scope.bbname[0].branch_name;
+			}
+			//Draft pr-details
+			$scope.purchase = [];
+			$scope.draftdata = [];
+			var pr_gid = sessionStorage.getItem('pr_draft_gid');
+			$scope.status = sessionStorage.getItem('prheader_status');
+			$scope.prid = pr_gid;
+			if ($scope.prid) {
+				var get_prdetails = Serviceprcreate.getprdetails(pr_gid)
+				get_prdetails.then(function (result) {
+
+						// console.log(result.data)
+						angular.forEach(result.data, function (value, key) {
+							var CCBS = JSON.parse(value.CCBS)
+							value.CCBS = CCBS
+						})
+						$scope.purchase = result.data;
+						$scope.draftdata = $scope.purchase;
+					}),
+					function () {
+						alert('no data');
+					};
+			}
+			//pr details
+			$scope.searchTerm;
+			$scope.purchase = [];
+			$scope.addproduct = function (pr) {
+				if (pr.commodity == undefined) {
+					alert('Select Commodity Name');
+					return false
+				}
+				if (pr.branch_gid == undefined) {
+					alert('Select Branch Code');
+					return false
+				}
+				if (pr.selectedcustcate == undefined) {
+					alert('Select Product Category');
+					return false
+				}
+				if (pr.selectedcustcattype == undefined) {
+					alert('Select Product Type');
+					return false
+				}
+				if (pr.ddlproduct == undefined) {
+					alert('Select Supplier Name');
+					return false
+				}
+
+				var editstatus = "Y";
+				if ($scope.purchase.length > 0) {
+					if ($scope.purchase[0].action == 'draft') {
+						editstatus = "N";
+					}
+				}
+
+
+				$scope.p = $filter('filter')($scope.purchase, {
+					'product_name': pr.product1.product_name,
+					'branch_gid': pr.branch_gid,
+					'commodity_name': pr.commodity.commodity_name,
+					'commodity_gid': pr.commodity.commodityprod_commoditygid,
+					'product_gid': pr.product1.product_gid,
+					'supplierproduct_unitprice': pr.ddlproduct.unitprice,
+					'supplierproduct_gid': pr.ddlproduct.supplierproduct_gid,
+					'supplier_gid': pr.ddlproduct.supplier_gid,
+					'uom_name': pr.product1.uom_name,
+					'supplier_name': pr.ddlproduct.supplier_name,
+					'branch_name': $scope.bname,
+
+
+				}, true);
+				if ($scope.p.length > 0) {
+					alert('This Record is Already Exists');
+				} else {
+					if (pr.mepnumber == undefined) {
+						$scope.mepno = '';
+					} else {
+						$scope.mepno = pr.mepnumber;
+					}
+					$scope.branch_gid = pr.branch_gid;
+					$scope.commodity_gid = pr.commodity.commodityprod_commoditygid;
+
+
+					var pr_details = {
+						'product_name': pr.product1.product_name,
+						'branch_gid': pr.branch_gid,
+						'commodity_name': pr.commodity.commodity_name,
+						'commodity_gid': pr.commodity.commodityprod_commoditygid,
+						'product_gid': pr.product1.product_gid,
+						'supplierproduct_unitprice': pr.ddlproduct.unitprice,
+						'supplierproduct_gid': pr.ddlproduct.supplierproduct_gid,
+						'supplier_gid': pr.ddlproduct.supplier_gid,
+						'uom_name': pr.product1.uom_name,
+						'supplier_name': pr.ddlproduct.supplier_name,
+						'branch_name': $scope.bname,
+						"detail_edit": editstatus,
+						"PRdetail_gid": 0,
+						'CCBS': []
+					}
+					// var data = {
+					// 	"product_gid": pr.product1.product_gid,
+					// 	"quantity": 1,
+					// 	"supplier_gid": "21",
+					// }
+
+
+
+
+					$scope.purchase.push(pr_details);
+					if ($scope.purchase.length > 1) {
+
+						if ($scope.purchase[0].commodity_gid != pr.commodity.commodityprod_commoditygid) {
+							alert('Select the Same Commodity Name')
+							i = $scope.purchase.length;
+							$scope.purchase.pop(i, 1); // removes the matched element
+							return false
+						}
+						if ($scope.purchase[0].branch_gid != pr.branch_gid) {
+							alert('Select the Same branch')
+							i = $scope.purchase.length;
+							$scope.purchase.pop(i, 1); // removes the matched element
+							return false
+						}
+						if ($scope.purchase[0].supplier_gid != pr.ddlproduct.supplier_gid) {
+							alert('Select the Same Supplier Name')
+							i = $scope.purchase.length;
+							$scope.purchase.pop(i, 1); // removes the matched element
+							return false
+						}
+					}
+					// alert($scope.purchase)
+					$scope.searchText = null;
+				}
+			}
+			var get_purchase = Serviceprcreate.getpur()
+			get_purchase.then(function (result) {
+					$scope.maintable = $filter('orderBy')(result.data, '-prheader_gid');
+					$scope.prsummary = $scope.maintable;
+					$scope.userTotalItems = $scope.prsummary.length;
+					$scope.Totalpages = Math.ceil($scope.prsummary.length / $scope.itemsPerPage);
+				}),
+				function () {
+					alert('no data');
+				};
+
+			//draft button
+			$scope.save_prdetailsdraft = function (action1, prheader_gid, limi) {
+
+
+				// for(var i=0;i<$scope.purchase.length;i++){
+				// 	for(var j=0;j<$scope.purchase[i].CCBS.length;j++){
+
+				// 	}
+				// }
+
+				var status, type, gid
+				gid = $scope.prid;
+				$scope.branch_gid = $scope.purchase[0].branch_gid;
+				$scope.commodity_gid = $scope.purchase[0].commodity_gid;
+				var tt = 'PR_DRAFT_INSERT'
+				var dd = 'PR_DETAILS_DRAFT'
+				// if(action=='submit')
+				if (action1 == 'draft' && $scope.prid==undefined) {
+
+					limi = 0;
+					status = 'Draft';
+					type = dd;
+					action = 'INSERT'
+					gid = $scope.prid;
+					$scope.branch_gid = $scope.purchase[0].branch_gid;
+					$scope.commodity_gid = $scope.purchase[0].commodity_gid;
+				}
+				if (action1 == 'draft' && $scope.prid != undefined) { //alert('ooo')
+					debugger
+					action = 'UPDATE';
+					status = 'Draft';
+					type = tt;
+					for (var i = 0; i < $scope.purchase.length; i++) {
+						if ($scope.purchase[i].CCBS == null) {
+							// alert(type($scope.purchase[0].CCBS))
+							$scope.purchase[i].CCBS = "{}"
+
+						}
+					}
+				}
+
+
+
+
+				var prdate = Date.parse($scope.today)
+				prdate = $filter('date')(prdate, "yyyy-MM-dd");
+				var details = {
+					'HEADER': [{
+						"Date": prdate,
+						"Emp_gid": $scope.employgid,
+						"Statuss": status,
+						"Branchgid": $scope.branch_gid,
+						"Totalamount": $scope.totalamt,
+						"Commodity_gid": $scope.commodity_gid,
+						"mepno": $scope.mepno,
+						"PR_Header_Gid": gid
+					}]
+				}
+				var ddl = {
+					'DETAIL': $scope.purchase
+				}
+
+				var mainprdata = {
+					"Action": action,
+					"Type": type,
+					"PR_Header": details,
+					"PR_Products": ddl,
+				}
+				if ($scope.purchase.length == 0) {
+					alert("Pls select any one product");
+				} else {
+					// $scope.loading();
+					// var main = Serviceprcreate.saveccbs(mainprdata)
+					var prdatas = Serviceprcreate.setprsave(mainprdata)
+					prdatas.then(function (result) {
+							if (result.data == "SUCCESS") {
+								alert(" Added to Draft list");
+								sessionStorage.setItem('pr_header', '');
+								$window.location.href = "pr_maker";
+							} else {
+								alert("Not able to proceed");
+								return false
+								sessionStorage.setItem('pr_header', '');
+								$window.location.href = "pr_maker";
+							}
+						}),
+						function () {
+							alert('no data');
+						} //.finally($scope.endloading);
+				}
+
+			}
+
+
+			$scope.save_prdetails = function (action, prheader_gid, limi) {
+				var status, type, prgid
+				prgid = $scope.prid;
+				$scope.branch_gid = $scope.purchase[0].branch_gid;
+				$scope.commodity_gid = $scope.purchase[0].commodity_gid;
+				var limi_gid;
+
+				if (limi == undefined) {
+					alert('Please choose pr approver')
+					return false
+				}
+				if (action == 'submit' && $scope.prid != undefined) {
+
+					action = 'Update';
+					type = 'PR_DRAFT_INSERT'
+					status = "Pending for next level to " + limi.employee_code;
+					limi_gid = limi.employee_gid;
+					prgid = $scope.prid;
+					$scope.branch_gid = $scope.purchase[0].branch_gid;
+					$scope.commodity_gid = $scope.purchase[0].commodity_gid;
+
+
+				}
+				if(prgid==undefined){
+
+
+				action = 'insert';
+				type = 'PR_DETAILS_INSERT'
+				status = "Pending for next level to " + limi.employee_code;
+				prgid = 0;
+				$scope.branch_gid = $scope.purchase[0].branch_gid;
+				$scope.commodity_gid = $scope.purchase[0].commodity_gid;
+				limi_gid = limi.employee_gid;}
+
+
+
+
+				var prdate = Date.parse($scope.today)
+				prdate = $filter('date')(prdate, "yyyy-MM-dd");
+				var details = {
+					'HEADER': [{
+						"Date": prdate,
+						"Emp_gid": $scope.employgid,
+						"Statuss": status,
+						"Branchgid": $scope.branch_gid,
+						"Totalamount": $scope.totalamt,
+						"Commodity_gid": $scope.commodity_gid,
+						"mepno": $scope.mepno,
+						"PR_Header_Gid": prgid,
+						"dropdown_gid": limi_gid
+
+					}]
+				}
+				var ddl = {
+					'DETAIL': $scope.purchase
+				}
+
+				var mainprdata = {
+					"Action": action,
+					"Type": type,
+					"PR_Header": details,
+					"PR_Products": ddl,
+				}
+				if ($scope.purchase.length == 0) {
+					alert("Pls select any one product");
+				} else {
+					// $scope.loading();
+
+					var prdatas = Serviceprcreate.setprsave(mainprdata)
+					prdatas.then(function (result) {
+							if (result.data == "SUCCESS") {
+								alert("Inserted Successfully");
+								sessionStorage.setItem('pr_header', '');
+								$window.location.href = "pr_maker";
+							} else {
+								alert("Not Inserted Successfully");
+								return false
+								sessionStorage.setItem('pr_header', '');
+								$window.location.href = "pr_maker";
+							}
+						}),
+						function () {
+							alert('no data');
+						} //.finally($scope.endloading);
+				}
+			}
+			$scope.prdelete = [];
+			// select
+			$scope.purdelete = function (pur, purchase_gid, $index) {
+				if (pur.action != undefined) {
+					$scope.purchase[$index].detail_edit = "R";
+					$scope.purchase[$index].quantity = 0;
+					$scope.purchase[$index].CCBS = '{}'
+
+					return false
+				}
+
+
+
+
+				if (purchase_gid == undefined || purchase_gid == "") {
+					$scope.purchase.splice($index, 1);
+					alert("Deleted Successfully");
+				} else {
+					// $scope.prdelete.push(purchase_gid);
+					$scope.purchase.splice($index, 1);
+					alert("Deleted Successfully");
+				}
+				if ($scope.status = 'Draft') {
+					var d1 = {
+						"prdetails_prheader_gid": $scope.prid,
+						"prdetails_product_gid": pur.prdetails_product_gid
+					}
+					var data = {
+						'action': 'delete',
+						'data': d1
+					}
+
+				}
+			}
+			$scope.close = function () {
+				sessionStorage.setItem('pr_header', '');
+				$window.location.href = "pr_maker";
+			}
+			//ccbs
+			var datan = {
+				"Table_name": "ap_mst_tcc",
+				"Column_1": "tcc_gid,tcc_bsgid, tcc_code",
+				"Column_2": "",
+				"Where_Common": "tcc",
+				"Where_Primary": "",
+				"Primary_Value": "",
+				"Order_by": "gid"
+			}
+			var dat = {
+				"Table_name": "ap_mst_tbs",
+				"Column_1": "tbs_code,tbs_gid,tbs_name",
+				"Column_2": "",
+				"Where_Common": "tbs",
+				"Where_Primary": "",
+				"Primary_Value": "",
+				"Order_by": "gid"
+			}
+			var trans = {
+				"Table_name": "ap_mst_tccbs",
+				"Column_1": "ccbs_gid,ccbs_name,ccbs_bs,ccbs_cc,ccbs_code",
+				"Column_2": "",
+				"Where_Common": "ccbs",
+				"Where_Primary": "",
+				"Primary_Value": "",
+				"Order_by": "gid"
+			}
+			var ddl = {
+				"Table_name": "gal_mst_tgodown",
+				"Column_1": "godown_gid,godown_code,godown_name",
+				"Column_2": "",
+				"Where_Common": "godown",
+				"Where_Primary": "",
+				"Primary_Value": "",
+				"Order_by": "gid"
+			}
+			$scope.ccbs = [];
+			var ccbps = Serviceprcreate.bsdata(trans)
+			ccbps.then(function (result) {
+
+				var data = result.data
+				$scope.ccbs = data.DATA;
+			})
+			$scope.tt = [];
+			var bbs = Serviceprcreate.bsdata(dat)
+			bbs.then(function (result) {
+
+				var data = result.data
+				$scope.tt = data.DATA;
+			})
+			$scope.bb = [];
+			var ccbs = Serviceprcreate.bsdata(datan)
+			ccbs.then(function (result) {
+
+				var data = result.data
+				$scope.bb = data.DATA
+			}, function () {
+				alert("Record Not Found")
+			});
+			var deliveryddl = Serviceprcreate.bsdata(ddl)
+			deliveryddl.then(function (result) {
+
+				var data = result.data
+				$scope.deliverydd = data.DATA;
+
+			}, function () {
+				alert("Record Not Found")
+			});
+			$scope.ccbsstatus = function (a, index) {
+				$scope.draftdata[$scope.ccbsindex].CCBS[index].prccbs_edit = "R";
+				// console.log( $scope.draftdata[$currentindex].CCBS[index].prccbs_edit);
+				//console.log($scope.draftdata)
+			}
+			$scope.removeddl = function (a, index) {
+
+				if (a.status != undefined) {
+					$scope.purchase[$scope.ccbsindex].CCBS[index].prccbs_edit = "R";
+					$scope.purchase[$scope.ccbsindex].CCBS[index].prccbs_qty = 0;
+					return false
+					// $scope.ccbsstatus(a, index)
+
+				}
+
+				// // { var d= "prccbs_edit":"Y";
+				//     $scope.purchase[$currentindex].CCBS[index].push('p')
+				// }
+				for (var i = 0; i < $scope.ccbsddl.length; i++) {
+					if ($scope.ccbsddl[i] == a) {
+						$scope.ccbsddl.splice(i, 1); // removes the matched element
+						i = $scope.ccbsddl.length;
+					}
+				}
+			}
+			$scope.pur = [];
+			$scope.databranch = function (index, id) {
+
+				if ($scope.ccbsddl[index].delivery_type == 'PO_BRANCH') {
+					$scope.ccbsddl[index].prccbs_reftablegid = id
+					return false
+				}
+				if ($scope.ccbsddl[index].delivery_type == 'PO_GODOWN') {
+					$scope.ccbsddl[index].prccbs_reftablegid = id
+					return false
+				}
+			}
+			$scope.finalccbs = [];
+			//save ccbs data
+			//$scope.pur = [];
+			$scope.saveccbsdata = function (pur, a, b) {
+				// if ($scope.purchase[$currentindex].location ==undefined ) {
+
+				// 	alert("Please fill required field");
+				// 	return false;
+				// }
+				// $scope.checkddl($currentindex,$scope.totalamtccbs );
+				if ($scope.totalamtccbs == $scope.allocatedqty) {
+
+
+					modalhide('mdl_present1');
+					if ($scope.purchase[$currentindex].quantity == $scope.totalamtccbs) {
+						$scope.IsDisabled = false;
+					}
+
+				} else {
+					alert('qty shuld be mached')
+					return false
+				}
+			}
+			$scope.checkddl = function (index, a) {
+
+				$scope.data = $filter('filter')($scope.purchase, {
+
+				}, true);
+				if ($scope.totalamtccbs > $scope.allocatedqty) {
+					alert('qty shuld be mached');
+				}
+
+			}
+
+
+
+
+		}
+	]);
+	myApp.service("Serviceprcreate", function ($http) {
+		//Approval
+		this.delmat = function (data) {
+			var response = $http.post(Appname + "/approvalview/", data)
+			return response;
+		}
+		this.getmulti = function (d) {
+			var response = $http.get(Appname + "/Productjson/");
+			return response;
+		}
+		//pr_category
+		this.pr_category = function () {
+			var response = $http.get(Appname + "/pr_productcategory/");
+			return response;
+		}
+		//pr_category_type
+		this.pr_categorytype = function (gid) {
+			var response = $http.post(Appname + "/pr_category_type/", gid);
+			return response;
+		}
+		//pr_product
+		this.pr_product = function (gid) {
+			var response = $http.post(Appname + "/pr_product/", gid);
+			return response;
+		}
+		//supplier
+		this.getsupplier = function (supp, product_gid) {
+			var response = $http.post(Appname + "/supplier_details/", {
+				params: {
+					'action': 'suppliercapacity',
+					'type': '',
+					'product_gid': product_gid
+				}
+			})
+			return response;
+		}
+		//branchresult
+		this.branchresult = function () {
+			var response = $http.post(Appname + "/branchresult/");
+			return response;
+		}
+		//commodity_ddl
+		this.commodity_ddl = function (sproduct_gid) {
+			var response = $http.post(Appname + "/commodity_pdata/", sproduct_gid)
+			return response;
+		}
+		//trnapp
+		this.trnapp = function (data) {
+			var response = $http.post(Appname + "/tranapproval/", data)
+			return response;
+		}
+		this.getprdetailsdelete = function (ev) {
+			var response = $http.post(Appname + "/Prdelete_Set/", {
+				params: {
+					"prdetail_gid": ev
+				}
+			});
+			return response;
+		}
+		//supplier Name
+		this.getdropdown = function (tablename) {
+			var responsee = $http.post(Appname + "/Dropdown_detail_ap/", {
+				params: {
+					"tablename": tablename,
+					"gid": 0,
+					"name": ''
+				}
+			});
+			return responsee;
+		}
+		this.getproductname = function (supplier_gid) {
+			var response = $http.post(Appname + "/product_name/", {
+				params: {
+					"date": "",
+					"supplier_gid": supplier_gid,
+					"product_gid": 0,
+					"char_active": 'Y'
+				}
+			})
+			return response;
+		}
+		this.getpur = function (d) {
+			var response = $http.get(Appname + "/purchasesmryget/");
+			return response;
+		}
+		//Draft data
+		this.getprdetails = function (prheader_gid) {
+			var response = $http.post(Appname + "/Prdraftdata/", {
+				params: {
+					'prheader_gid': prheader_gid,
+				}
+			})
+			return response;
+		}
+		//delete
+		this.delete = function (del) {
+			var response = $http.post(Appname + "/pr_po_delete/", del);
+			return response;
+		}
+		//All_product_get
+		this.bsdata = function (data) {
+			var response = $http.post(Appname + "/prodget/", {
+
+
+				"data": data,
+				"Action": ''
+
+
+			});
+			return response;
+		}
+		//ccbs
+		// this.setprsave = function (action, status, prdetails, prdelete, details) {
+		this.setprsave = function (data) {
+			var response = $http.post(Appname + "/saveccbs/", data);
+			return response;
+		}
+	});
+</script>
+{% endblock %}

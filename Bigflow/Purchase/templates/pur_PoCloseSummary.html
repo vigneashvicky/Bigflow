@@ -1,0 +1,150 @@
+{% extends 'Shared/mainLayout.html' %}
+{% load static from staticfiles %}
+{% block title %} PO close {% endblock %}
+{% block content %}
+{% csrf_token %}
+{% verbatim %}
+<div class="maincontent">
+    <div ng-app="Apppoclose" ng-controller="Ctrlpoclose" class="container container1">
+        <div class="row">
+            <div class="row-header col-lg-12 col-sm-12">
+                <h4>PO Close</h4>
+            </div>
+        </div>
+        </br>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-3">
+                    <md-input-container class="md-block inputcontainer">
+                        <label>PO No</label>
+                        <input id="ponum" maxlength="256" ng-model="search.poheader_no" />
+                    </md-input-container>
+                </div>
+               <div class="col-md-3">
+                    <md-input-container class="md-block inputcontainer">
+                        <label>Supplier</label>
+                        <input id="supplr" maxlength="256" ng-model="search.supplier_name"/>
+                    </md-input-container>
+                </div>
+                <div class="col-md-3">
+                    <md-input-container class="md-block inputcontainer">
+                        <label>PO Amount</label>
+                        <input id="amount" maxlength="256" ng-model="search.poheader_amount"/>
+                    </md-input-container>
+                </div>
+            </div>
+        </div>
+        <div class="row table-responsive">
+            <div class="col-md-12 col-lg-12 col-sm-12">
+                <table class="table table-striped table-bordered table-condensed table-hover md-primary"
+                       md-progress="deferred">
+                    <thead class="header">
+                    <tr>
+                        <th>S.No</th>
+                        <th>PO No</th>
+                        <th>Supplier Name</th>
+                        <th>PO Date</th>
+                        <th>PO Amount</th>
+                        <th>PO Status</th>
+                        <th>PO Closed Status</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="poclose in poclosesummary|filter:search:strict ">
+                        <td align="right">
+                            {{$index+1}}
+                        </td>
+                        <td>{{poclose.poheader_no }}</td>
+                        <td>{{poclose.supplier_name}}</td>
+                        <td>{{poclose.poheader_date|date:"dd-MMM-y"}}</td>
+                        <td align="right">{{poclose.poheader_amount| number:2}}</td>
+                        <td>{{poclose.poheader_status}}</td>
+                        <td>{{poclose.poclose_status}}</td>
+                         <td>
+                             <a href="poclosecrte"> <span ng-click="poview(poclose.poheader_gid,poclose.poclose_status,poclose.poheader_status)" class="editlink">
+                               <i class="material-icons">visibility</i>
+                                <md-tooltip>View</md-tooltip>
+                             </span></a>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="8">
+                            <ul uib-pagination total-items="empsmry.length" ng-model="currentPage" max-size="maxSize"
+                                class="pagination-sm" boundary-links="true" items-per-page="itemsPerPage"></ul>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+         <div class="col-md-12">
+               <div class="col-md-12 text-right">
+                                <md-button ng-click="close()" class="md-raised md-warn">Close
+                                    <md-tooltip>Close</md-tooltip>
+                                </md-button>
+                            </div>
+    </div>
+</div>
+</div>
+{% endverbatim %}
+<script>
+var myApp = angular.module('Apppoclose', ['ngMaterial','ui.bootstrap','ngMessages']).config(function($httpProvider) {
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+});
+
+myApp.controller('Ctrlpoclose', ['$scope','Servicepoclose','$mdDialog', function($scope,Servicepoclose,$mdDialog) {
+
+    var getpoheader = Servicepoclose.getpoclosesearch();
+    getpoheader.then(function (getpoheader) {
+        $scope.poclosesummary = getpoheader.data;
+        $scope.poclosesummary = unique($scope.poclosesummary);
+    }, function () {
+        alert('Records not found');
+    });
+    $scope.poview=function(poheader_gid,poclose_status,poheader_status){
+      var poclosehead= {
+            poheader_gid: poheader_gid,
+            poclose_status: poclose_status,
+             postatus: poheader_status,
+        };
+        sessionStorage.setItem('poclosepoheader', JSON.stringify(poclosehead));
+    }
+var unique = function(origArr) {
+    var newArr = [],
+        origLen = origArr.length,
+        found, x, y;
+
+    for (x = 0; x < origLen; x++) {
+        found = undefined;
+        for (y = 0; y < newArr.length; y++) {
+            if (origArr[x]["poheader_no"] === newArr[y]["poheader_no"]) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            newArr.push(origArr[x]);
+        }
+    }
+    return newArr;
+}
+
+ }]);
+
+
+
+ myApp.service("Servicepoclose", function ($http) {
+
+     this.getpoclosesearch = function () {
+        var response = $http.get(Appname + "/pur_poclosesummary");
+        return response;
+    }
+
+  });
+
+</script>
+{% endblock %}

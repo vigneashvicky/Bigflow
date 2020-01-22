@@ -1,0 +1,734 @@
+{% extends 'Shared/mainLayout.html' %}
+{% load static from staticfiles %}
+{% block title %} InVoice Payment Summary {% endblock %}
+{% block content %}
+{% csrf_token %}
+{% verbatim %}
+
+<div class="maincontent">
+    <div ng-app="apppaymentsummary" ng-controller="ctrlpaymentsummary" class="container  container1">
+        <div class="row ">
+            <div class="row-header col-lg-12 col-sm-12">
+                <h4>Prepare Payment</h4>
+            </div>
+        </div>
+        <div class="row ">
+            <form role="form" name="inwardsummary_valid">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-4 col-lg-4 col-sm-4">
+                            <md-input-container class="md-block inputcontainer">
+                                <label>Invoice Type</label>
+                                <md-select ng-model="selectedtype"
+                                           ng-change="ACselectchange(selectedtype,supplier_gid,invoicenum,invoiceamt,Summarydate)">
+                                    <md-optgroup label="Invoice Type">
+                                        <md-option ng-repeat="x in channelddl" ng-value="x.metadata_value"
+                                                   ng-click="typeclick(x.metadata_value)">{{ x.metadata_value }}
+                                        </md-option>
+                                    </md-optgroup>
+                                </md-select>
+                            </md-input-container>
+                        </div>
+                        <div class="col-md-4 col-lg-4 col-sm-4">
+                            <md-input-container class="md-block inputcontainer">
+                                <label>PO No</label>
+                                <input ng-model="POno" numbers-only maxlength="10"/>
+                            </md-input-container>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4">
+                            <md-input-container class="md-block inputcontainer">
+                                <label>Date</label>
+                                <input ng-model="Summarydate"
+                                       ng-change="ACselectchange(selectedtype,supplier_gid,invoicenum,invoiceamt,Summarydate)"
+                                       numbers-only maxlength="10"/>
+                            </md-input-container>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-4 col-lg-4 col-sm-4">
+                            <md-input-container class="md-block inputcontainer">
+                                <label>Supplier Name</label>
+                                <md-select ng-model="supplier_gid"
+                                           ng-change="ACselectchange(selectedtype,supplier_gid,invoicenum,invoiceamt,Summarydate)"
+                                           ng-disabled="disable" md-on-close="clearSearchTerm()"
+                                           data-md-container-class="selectdemoSelectHeader">
+                                    <md-select-header class="demo-select-header">
+                                        <input ng-model="searchTerm" type="search"
+                                               placeholder="Search for a Supplier Name.."
+                                               class="demo-header-searchbox md-text">
+                                    </md-select-header>
+                                    <md-optgroup label="Supplier Name">
+                                        <md-option ng-repeat="posupplier in invoicesupplier_list | filter:searchTerm"
+                                                   ng-click="supplier_click(posupplier.supplier_gid)"
+                                                   ng-selected="supplier_gid == posupplier.supplier_gid"
+                                                   ng-value="posupplier.supplier_name">
+                                            {{posupplier.supplier_name}}
+                                        </md-option>
+                                    </md-optgroup>
+                                </md-select>
+                            </md-input-container>
+                        </div>
+                        <div class="col-md-4 col-lg-4 col-sm-4">
+                            <md-input-container class="md-block inputcontainer">
+                                <label>Invoice Number</label>
+                                <input ng-model="invoicenum"
+                                       ng-change="ACselectchange(selectedtype,supplier_gid,invoicenum,invoiceamt,Summarydate)"
+                                       numbers-only maxlength="10"/>
+                            </md-input-container>
+                        </div>
+                        <div class="col-md-4 col-lg-4 col-sm-4">
+                            <md-input-container class="md-block inputcontainer">
+                                <label>Invoice Amount</label>
+                                <input ng-model="invoiceamt"
+                                       ng-change="ACselectchange(selectedtype,supplier_gid,invoicenum,invoiceamt,Summarydate)"
+                                       numbers-only maxlength="10"/>
+                            </md-input-container>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+
+                    <div class="pull-right">
+
+                        <!--<md-button type="submit" class="md-raised md-primary" id="btn_create"-->
+                        <!--ng-click="Search_click()">-->
+                        <!--Search-->
+                        <!--</md-button>-->
+                        <!--<md-button type="submit" class="md-raised " id="btn_create"-->
+                        <!--ng-click="Dispatch_click()">-->
+                        <!--Close-->
+                        <!--</md-button>-->
+
+
+                    </div>
+                </div>
+
+            </form>
+        </div>
+        <div class="row table-responsive">
+            <div class="col-md-12 col-lg-12 col-sm-12">
+                <table class="table table-striped table-bordered table-condensed table-hover md-primary"
+                       md-progress="deferred">
+                    <thead class="header">
+                    <tr style="text-align:center">
+                        <th>S.No</th>
+                        <th>CR No</th>
+                        <th>Image</th>
+                        <th>Paymode</th>
+                        <th>Invoice Type</th>
+                        <th>PO Number</th>
+
+                        <th>Supplier Name</th>
+                        <th>Employee Name</th>
+                        <th>Invoice No</th>
+                        <th>Invoice Date</th>
+                        <th>Credit Amount</th>
+                        <th>Amount Paid</th>
+                        <th>Balance To Pay</th>
+                        <th>Status</th>
+                        <th>Action<br>
+                        <input ng-click="selectAll_main()" ng-model="allItemsSelected"  ng-true-value="1"
+                                                         ng-false-value="0" type="checkbox"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="sum in payment_summary.slice(((currentPage-1)*itemsPerPage), ((currentPage)*itemsPerPage)) | filter :name">
+                        <td class="text-center" ng-model="dept_name">
+                            {{((currentPage-1)*itemsPerPage)+$index+1}}
+                        </td>
+                        <td ng-click="View_ap(sum)"><a href="">
+                            {{sum.invoiceheader_crno}}</a>
+                        </td>
+                        <td align="center">
+                            <a href="" ng-click="View_image(sum)">VIEW</a>
+                        </td>
+                        <td>{{sum.credit_details.Paymode_name}}</td>
+                        <td>
+                            {{sum.invoiceheader_invoicetype}}
+                        </td>
+                        <td>{{sum.poheader_no}}</td>
+
+                        <td>
+                            {{sum.supplier_name}}
+                        </td>
+                        <td>
+                            {{sum.employee_name}}
+                        </td>
+                        <td>{{sum.invoiceheader_invoiceno}}</td>
+                        <td>{{sum.invoiceheader_invoicedate | date:'dd-MMM-yyyy'}}</td>
+                        <td align="right">{{sum.credit_details.credit_amount}}</td>
+                        <td align="right">{{sum.paydetail_amt }}</td>
+                        <td align="right">{{sum.credit_details.credit_amount - sum.paydetail_amt }}</td>
+                        <td>{{sum.invoiceheader_status}}</td>
+                        <td align="center"><label><input type="checkbox" ng-model="sum.Is_Selected" ng-true-value="1"
+                                                         ng-false-value="0"
+                                                         ng-change="selectAll(sum)" ng-click="toggleCheck(sum,$index)"
+                        ></label></td>
+                        <span style="display: none;">Total: {{ getPaymentTotal() }}</span>
+
+                    </tr>
+
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="14">
+                            <ul uib-pagination total-items="payment_summary.length" ng-model="currentPage"
+                                max-size="maxSize"
+                                class="pagination-sm" boundary-links="true" items-per-page="itemsPerPage"></ul>
+                        </td>
+                    </tr>
+
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <div class="col-lg-12">
+
+
+            <div class=" pull-right">
+
+                <md-button type="submit" class="md-raised md-warn" id="btn_create"
+                           ng-click="Payment_click()">
+                    Prepare Payment
+                </md-button>
+            </div>
+            <div class="col-md-2 pull-right">
+                <md-input-container class="md-block inputcontainer">
+                    <label>Invoice Amount</label>
+                    <input ng-model="totalamount  " ng-disabled="true" maxlength="160" required/>
+                </md-input-container>
+            </div>
+
+        </div>
+
+        <div class="modal fade" id="mdl_present" tabindex="-1" role="dialog" data-backdrop="static"
+             data-keyboard="false"
+             aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header popup-header">
+                        <h5 class="modal-title" id="exampleModalLabel">
+                            Payment Details
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="row table-responsive">
+                                <div class="col-md-12 col-lg-12 col-sm-12">
+                                    <table class="table table-striped table-bordered table-condensed table-hover md-primary"
+                                           md-progress="deferred">
+                                        <thead class="header">
+                                        <tr style="text-align:center">
+                                            <th>S.No</th>
+                                            <th>Invoice Number</th>
+                                            <th>Date</th>
+                                            <th>Total Amount</th>
+                                            <th>Amount To Pay</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr ng-repeat="pay in paymentdetail">
+
+
+                                            <td class="text-center">
+                                                {{$index+1}}
+                                            </td>
+                                            <td class="text-center">
+                                                {{pay.invoiceno}}
+                                            </td>
+                                            <td class="text-center">
+                                                {{pay.date | date:'dd-MMM-yyyy'}}
+                                            </td>
+                                            <td class="text-center">
+                                                {{pay.Amount}}
+                                            </td>
+                                            <td>
+                                                <input valid-number class="textboxgeneral" maxlength="16"
+                                                       ng-change="Amt_partial(pay)" ng-model="pay.Amt_topay"
+                                                       only-numbers
+                                                />
+                                            </td>
+                                            <span style="display: none;">Total: {{ getPaymentTo_pay() }}</span>
+
+
+                                        </tr>
+                                        </tbody>
+
+                                        <tfoot>
+                                        <tr>
+                                            <td colspan="3">
+
+                                            </td>
+                                            <td colspan="2" style="padding: 20px">
+                                                <strong>Total Amount:{{totalamount_topay}}</strong>
+
+                                            </td>
+                                        </tr>
+                                        </tfoot>
+
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="row ">
+                                <div class="col-lg-12 col-sm-12 text-right">
+                                    <md-button ng-click="Close()" data-dismiss="modal" class="md-raised">
+                                        Close
+                                    </md-button>
+                                    <md-button ng-click="save_Payment()" ng-hide="hide_show"
+                                               data-dismiss="modal" class="md-raised md-warn">Submit
+                                    </md-button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="image_present" tabindex="-1" role="dialog" data-backdrop="static"
+             data-keyboard="false"
+             aria-labelledby="exampleModalLabel" aria-hidden="true" enctype="multipart/form-data">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header popup-header">
+                        <h5 class="modal-title">
+                            Image
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </h5>
+                    </div>
+                    <!--<img ng-src="{{imagelocation}}">-->
+                    <embed ng-src="{{imagelocation}}" width="900px" height="900px"/>
+                    <div class="modal-footer"><a href="{{imagelocation}}" download>
+                        <button type="button" class="btn btn-info custbutton">
+                            Download
+                        </button>
+                    </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+{% endverbatim %}
+
+<script>
+    var app=angular.module('apppaymentsummary',['ngMaterial','ui.bootstrap', 'AppCommon']).config(function($httpProvider) {
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+
+});
+
+app.controller('ctrlpaymentsummary', ['$scope', '$filter', '$mdDateLocale', 'paymentsummary', '$window', '$mdDialog', '$element',
+    function($scope, $filter, $mdDateLocale, paymentsummary, $window, $mdDialog, $element) {
+        $element.find('input').on('keydown', function(ev) {
+            ev.stopPropagation();
+        });
+        $scope.currentPage = 1;
+        $scope.maxSize = 3;
+        $scope.itemsPerPage = 10;
+        $scope.airwayno = '';
+        $scope.courier = '';
+        $scope.Summarydate = '';
+        $scope.status = '';
+        $scope.allItemsSelected = 0;
+
+        $scope.loading = function() {
+            $mdDialog.show({
+                templateUrl: 'loaderSpinner',
+                parent: angular.element(document.body),
+                clickOutsideToClose: false
+            });
+        };
+
+        $scope.endloading = function() {
+            $mdDialog.hide();
+        };
+
+        $scope.channelddl = [{
+            metadata_value: "PO ",
+        }, {
+            metadata_value: "Non PO"
+        }]
+
+        var supplier = paymentsummary.getdropdown("supplier");
+        supplier.then(function(supplier) {
+            var supplier = JSON.parse(supplier.data);
+            $scope.invoicesupplier_list = supplier;
+
+        }, function() {
+            alert("Record Not Found");
+
+        });
+
+        summary();
+        function summary() {
+         $scope.loading();
+                var summary = paymentsummary.getpaymentmaker();
+            summary.then(function(result) {
+                  //  console.log(result.data)
+                    $scope.payment_summary = result.data;
+                    $scope.maintable = result.data;
+                    angular.forEach($scope.payment_summary, function(value, key) {
+                        $scope.payment_summary[key].credit_details = JSON.parse(value.credit_details)
+
+                        $scope.payment_summary[key].checked = false;
+
+                        if (value.invoiceheader_invoicetype == "PO") {
+                            $scope.payment_summary[key].invoiceheader_invoicetype = "PO "
+                        }
+                    })
+                   // console.log($scope.payment_summary)
+                },
+                function(err) {
+                    alert('No data!.');
+                }).finally($scope.endloading);
+        }
+
+
+        //AP View Click
+
+        $scope.View_ap = function(detail) {
+
+            sessionStorage.clear();
+            if (detail.invoiceheader_invoicetype == "PO ") {
+                detail.invoiceheader_invoicetype = "PO"
+            }
+            var Viewap_dtl = {
+                type: detail.invoiceheader_invoicetype,
+                invoiceheader_gid: detail.invoiceheader_gid,
+                supplier_gid: detail.supplier_gid,
+                status: detail.invoiceheader_status
+            };
+            sessionStorage.setItem('Viewap_dtl', JSON.stringify(Viewap_dtl));
+            $window.location.href = "billentry";
+        }
+
+
+
+        $scope.payment_details = [];
+        $scope.toggleCheck = function(value,index) {
+            if ($scope.payment_details.indexOf(value) === -1) {
+                $scope.payment_details.push(value);
+            } else {
+                $scope.payment_details.splice($scope.payment_details.indexOf(value), 1);
+            }
+             //alert( JSON.stringify($scope.payment_details))
+        };
+
+         $scope.selectAll_main = function(){
+
+            $scope.payment_details = [];
+             for (var i = 0; i < $scope.payment_summary.length; i++) {
+
+                $scope.payment_summary[i].Is_Selected = $scope.allItemsSelected;
+                if($scope.allItemsSelected == 1 ){
+                     $scope.payment_details.push( $scope.payment_summary[i])
+                }
+            }
+            $scope.getPaymentTotal();
+         }
+
+        $scope.getPaymentTo_pay = function(){
+         var sum = 0;
+            var value = $scope.paymentdetail;
+            for (var i = 0; i < value.length; i++) {
+                if (value[i].Amt_topay !== undefined && value[i].Amt_topay !== "" ) {
+                    sum += parseFloat(value[i].Amt_topay);
+                }
+            }
+            $scope.totalamount_topay = sum;
+            return sum;
+
+        }
+
+         $scope.getPaymentTotal = function(){
+            var sum = 0;
+            var value = $scope.payment_details;
+            for (var i = 0; i < value.length; i++) {
+                if (value[i].credit_details.credit_amount !== undefined && value[i].credit_details.credit_amount !== "" ) {
+                    sum += (parseFloat(value[i].credit_details.credit_amount) - parseFloat(value[i].paydetail_amt) );
+                    //sum.credit_details.credit_amount - sum.paydetail_amt
+                }
+            }
+            $scope.totalamount = sum;
+            return sum;
+         }
+
+
+        $scope.ACselectchange = function(selectedtype, supplier_gid, invoicenum, invoiceamt, date) {
+            $scope.payment_summary = $filter('filter')($scope.maintable, {
+                "invoiceheader_invoicetype": selectedtype,
+                "supplier_name": supplier_gid,
+                "invoiceheader_invoiceno": invoicenum,
+                "credit_amount": invoiceamt,
+                "invoiceheader_invoicedate": date
+            }, );
+            $scope.allItemsSelected = 0 ;
+             $scope.selectAll_main();
+        }
+
+
+
+           $scope.View_image = function(details) {
+
+              $scope.imagelocation = details.invoiceheader_imagepath;
+              modalshow('image_present');
+
+           }
+
+        $scope.paymentdetail = [];
+        $scope.verify = [];
+        function headeramt() {
+<!--            var sum = 0;-->
+<!--            var paymentdetail = $scope.paymentdetail;-->
+<!--            for (var i = 0; i < paymentdetail.length; i++) {-->
+<!--                if (paymentdetail[i].Amount !== undefined && paymentdetail[i].Amount !== "") {-->
+<!--                    sum += parseFloat(paymentdetail[i].Amount);-->
+<!--                }-->
+<!--            }-->
+<!--            $scope.totalamount = sum;-->
+        }
+
+<!--        function paymentjson_set(value) {-->
+<!--            var bankdetails = JSON.parse(value.bankdetails);-->
+<!--            $scope.paymentdetail.push({-->
+<!--                "Invoice_Header_Gid": value.invoiceheader_gid,-->
+<!--                "Credit_Gid": value.credit_gid,-->
+<!--                "Amount": value.credit_amount-->
+<!--            })-->
+<!--            $scope.verify.push({-->
+<!--                "supplier_gid": value.supplier_gid,-->
+<!--                "invoiceheader_invoicedate": value.invoiceheader_invoicedate,-->
+<!--                "bankdetails_gid": bankdetails[0].bankdetails_gid,-->
+<!--                "type": value.invoiceheader_invoicetype,-->
+<!--                "employee_gid": value.employee_gid,-->
+<!--                "Paymode_name": value.Paymode_name,-->
+<!--                "bankbranch_name": bankdetails[0].bankbranch_name,-->
+<!--                "bankdetails_acno": bankdetails[0].bankdetails_acno,-->
+<!--                "bankbranch_ifsccode": bankdetails[0].bankbranch_ifsccode,-->
+<!--                "bankdetails_beneficiaryname": bankdetails[0].bankdetails_beneficiaryname,-->
+<!--            })-->
+
+<!--        }-->
+
+        $scope.paymentdata = [];
+<!--        $scope.selectAll = function(value) {-->
+<!--            $scope.paymentdata = value;-->
+<!--            if (value.checked == false) {-->
+<!--                value.checked = true;-->
+<!--                paymentjson_set(value);-->
+
+<!--            } else {-->
+<!--                value.checked = false;-->
+<!--                var ID = value.invoiceheader_gid;-->
+<!--                var whatIndex = null;-->
+<!--                angular.forEach($scope.paymentdetail, function(cb, index) {-->
+<!--                    if (cb.Invoice_Header_Gid === ID) {-->
+<!--                        whatIndex = index;-->
+<!--                    }-->
+<!--                });-->
+<!--                $scope.paymentdetail.splice(whatIndex, 1);-->
+<!--                $scope.verify.splice(whatIndex, 1);-->
+
+
+<!--            }-->
+<!--        }-->
+
+        var ref_id;
+        var header_type;
+        var bankdetails;
+        var header_json,detail_json;
+
+        $scope.Payment_click = function() {
+debugger;
+            if ($scope.payment_details.length <= 0) {
+                alert("Select Atleast One Invoice!.");
+                return false;
+            }
+            $scope.paymentdetail = [];
+
+            $scope.bankdetails = JSON.parse($scope.payment_details[0].bankdetails);
+
+            $scope.supplier = $scope.payment_details[0].supplier_gid;
+            $scope.invoiceheader_ppx = $scope.payment_details[0].invoiceheader_ppx;
+            $scope.employee = $scope.payment_details[0].employee_gid;
+            $scope.type = $scope.payment_details[0].invoiceheader_invoicetype;
+            $scope.Paymode_name = $scope.payment_details[0].credit_details.Paymode_name;
+            $scope.bankdetails_gid = $scope.bankdetails[0].bankdetails_gid;
+            $scope.invoicedate = $scope.payment_details[0].invoiceheader_invoicedate;
+            $scope.formattedDate = $filter('date')(new Date(), "yyyy-MM-dd");
+
+            var senddate = $scope.formattedDate;
+
+            for (var i = 0; i < $scope.payment_details.length; i++) {
+                $scope.paymentdetail.push({
+                "Invoice_Header_Gid": $scope.payment_details[i].invoiceheader_gid,
+                "Credit_Gid": $scope.payment_details[i].credit_details.credit_gid,
+                "Amount": ($scope.payment_details[i].credit_details.credit_amount - $scope.payment_details[i].paydetail_amt),
+                "invoiceno": $scope.payment_details[i].invoiceheader_invoiceno,
+                "date": $scope.payment_details[i].invoiceheader_invoicedate,
+                "Amt_topay": ($scope.payment_details[i].credit_details.credit_amount - $scope.payment_details[i].paydetail_amt),
+                      })
+
+                var supplier_chk = $scope.payment_details[i].supplier_gid;
+                var invoiceheader_ppx_check = $scope.payment_details[i].invoiceheader_ppx;
+                var employee_chk = $scope.payment_details[i].employee_gid;
+                var type_chk = $scope.payment_details[i].invoiceheader_invoicetype;
+                //var invoicedate_chk = $scope.payment_details[i].invoiceheader_invoicedate;
+                var Paymode_name_chk = $scope.payment_details[i].credit_details.Paymode_name;
+
+                if (type_chk != $scope.type) {
+                    alert("Select Individual Type")
+                    return false;
+                }
+                 if ($scope.type == 'PPX'){
+                     if (invoiceheader_ppx_check != $scope.invoiceheader_ppx) {
+                        alert("Select Supplier or Employee")
+                        return false;
+                    }
+                  }
+                if (Paymode_name_chk != $scope.Paymode_name) {
+                    alert("Select Individual Paymode")
+                    return false;
+                }
+                if ($scope.type == 'PPX' || $scope.type == 'EMP Claim') {
+                    if (employee_chk != $scope.employee) {
+                        alert("Select Individual Employee")
+                        return false;
+                    }
+                    if ($scope.type =='PPX' && invoiceheader_ppx_check == 'S' ){
+                        $scope.ref_id = $scope.supplier;
+                        $scope.header_type = "SUPPLIER_PAYMENT"
+                    }else{
+                         $scope.ref_id = $scope.employee;
+                         $scope.header_type = "EMPLOYEE_PAYMENT"
+                    }
+                } else {
+                    if (supplier_chk != $scope.supplier) {
+                        alert("Select Individual Supplier")
+                        return false;
+                    }
+                     $scope.ref_id = $scope.supplier;
+                    $scope.header_type = "SUPPLIER_PAYMENT"
+                }
+            }
+console.log($scope.paymentdetail)
+
+                    modalshow('mdl_present');
+
+
+
+
+        }
+
+        $scope.Amt_partial = function(payment_valid){
+
+            if (parseFloat(payment_valid.Amt_topay) <= payment_valid.Amount  ) {
+
+
+             } else {
+
+                alert("Amount to pay should be less than Or equal to total amount")
+                payment_valid.Amt_topay = ''
+             }
+        }
+
+
+
+         $scope.save_Payment = function() {
+
+            header_json = {
+                "HEADER": [{
+                    "Paymentheader_Date": $filter('date')(new Date(), "yyyy-MM-dd"),
+                    "Paymentheader_Amount": $scope.totalamount_topay,
+                    "REF_Gid":  $scope.ref_id,
+                    "Payment_Mode": $scope.Paymode_name,
+                    "Bank_Detail_Gid": $scope.bankdetails[0].bankdetails_gid,
+                    "Paymentheader_Status": "NEW",
+                    "Remark": "PAYMENT INITIATE",
+                    "Header_type": $scope.header_type,
+                    "bankbranch_name": $scope.bankdetails[0].bankbranch_name,
+                    "bankdetails_acno": $scope.bankdetails[0].bankdetails_acno,
+                    "ifsccode": $scope.bankdetails[0].bankbranch_ifsccode,
+                    "beneficiaryname": $scope.bankdetails[0].bankdetails_beneficiaryname,
+
+                }]
+             }
+             console.log(header_json)
+              detail_json = {
+                    "DETAILS": $scope.paymentdetail
+                }
+
+         var r = confirm("Are You Sure To prepare Payment");
+            if (r == true) {
+                var setpayment = paymentsummary.setpayment(header_json, detail_json);
+                setpayment.then(function(result) {
+
+                    if (result.data == "SUCCESS") {
+                            alert("Payment Prepared");
+                        $scope.totalamount = 0;
+                        $scope.paymentdetail = [];
+                        $scope.payment_details = [];
+                        $scope.verify = [];
+                        summary();
+                        $scope.selectedtype = '';
+                        $scope.supplier_gid= '' ;
+                        $scope.invoicenum = '';
+                        $scope.invoiceamt = '';
+                        $scope.Summarydate = '';
+                    }
+                })
+            } else {}
+
+
+
+         }
+
+
+    }
+]);
+app.service("paymentsummary", function ($http) {
+
+   this.getdropdown = function (tablename) {
+        var responsee = $http.post(Appname+"/Dropdown_details/",{params:{"tablename":tablename,"gid":0,"name":''}});
+        return responsee;
+    }
+
+      this.setinwardservice = function (action,type,header,details) {
+        var responsee = $http.post(Appname+"/setinwardentry/",{params:{"Action":action,"Type":type,"lj_header":header,"lj_details":details}});
+        return responsee;
+    }
+
+    this.getpaymentmaker = function () {
+        var response=$http.post(Appname+"/APInvoice_get/",{params:{"action":"INVOICE_PAYMENT","ponumber":"","supplier_gid":0,"inwarddetail_gid":0,"inwardheader_gid":0,"status":"Approved"}});
+        return response;
+    }
+
+    this.setpayment = function (header,details) {
+          var response = $http.post(Appname+"/APpayment_set/",{params:{"action":"Insert","type":"PAYMENT_ADD","header_json":header,"detail_json":details,"other_json":{},"status_json":{}}})
+          return response;
+    }
+
+});
+
+
+
+
+
+
+
+
+
+</script>
+{% endblock %}

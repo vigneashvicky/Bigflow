@@ -1,0 +1,387 @@
+{% extends 'Shared/mainLayout.html' %}
+{% load static from staticfiles %}
+{% block title %} PO Cancel Create {% endblock %}
+{% block content %}
+{% csrf_token %}
+{% verbatim %}
+
+
+<div ng-app="Appcancelcreate" ng-controller="Ctrlcancelcreate" class="container container1">
+
+    <div class="row  ">
+
+        <div class="row-header col-lg-12 col-sm-12">
+            <h4>PO Cancel Marker</h4>
+        </div>
+
+    </div>
+    <div class="row row-search" ng-form="searchfrom">
+
+        <form role="form">
+            <div class="col-lg-2 col-sm-2">
+                <md-input-container class="md-block inputcontainer">
+                    <label>PO Number</label>
+                    <input ng-model="poheader_sno" ng-disabled="true"/>
+                </md-input-container>
+            </div>
+            <div class="col-lg-2 col-sm-2">
+                <md-input-container class="md-block inputcontainer">
+                    <label>Supplier</label>
+                    <input ng-model="supplier_name" ng-disabled="true"/>
+                </md-input-container>
+            </div>
+            <div class="col-lg-2 col-sm-2">
+                <md-input-container class="md-block inputcontainer">
+                    <label>Team And Cond.</label>
+                    <input ng-model="teamandcond_name" ng-disabled="true"/>
+                </md-input-container>
+            </div>
+        </form>
+    </div>
+    <div class="row  table-responsive">
+        <div class="col-lg-12 col-sm-12">
+            <table datatable="ng" class="table  table-striped table-bordered table-condensed table-hover">
+                <thead class="header">
+                <tr>
+
+                    <td rowspan="2 " style="width:25px;" align="right">
+                        S.No
+                    </td>
+                    <td rowspan="2" style="width:10%;">
+                        Product Category
+                    </td>
+                    <td rowspan="2" style="width: 25%;">
+                        Product Type
+                    </td>
+                    <td rowspan="2" style="width: 10%;">
+                        Product Name
+                    </td>
+                    <td rowspan="2" style="width: 5%;">
+                        Product Desc
+                    </td>
+                    <td rowspan="2" style="width: 5%;">
+                        UOM
+                    </td>
+                    <td rowspan="2" style="width: 5%;">
+                        Quantity
+                    </td>
+                    <td rowspan="2" style="width: 10%;" align="right">
+                        Unit Price
+                    </td>
+
+                    <td rowspan="2" style="width: 10%;" align="right">
+                        Amount
+                    </td>
+                    <td rowspan="2" align="right">Tax Amount</td>
+                    <td rowspan="2" style="width: 10%;" align="right">
+                        Total Amount
+                    </td>
+
+                    <td rowspan="2" style="width: 100px;">
+                        Delivery
+                    </td>
+                </tr>
+                </thead>
+                <tbody>
+
+                <tr ng-repeat="poapp in pocancel">
+                    <td align="right">
+                        {{$index+1}}
+                    </td>
+                    <td>
+                        <span>{{poapp.productcategory_name}}</span>
+                    </td>
+                    <td>
+                        <span>{{poapp.producttype_name}}</span>
+                    </td>
+                    <td>
+                        <span>{{poapp.product_name}}</span>
+                    </td>
+                    <td>
+                        <span>{{poapp.po_desc}}</span>
+                    </td>
+                    <td>
+                        <span>{{poapp.podetails_uom}}</span>
+                    </td>
+                    <td align="right">
+                        <span>{{poapp.podetails_qty}}</span>
+                    </td>
+                    <td align="right">
+                        <span>{{poapp.podetails_unitprice| number:2}}</span>
+                    </td>
+                    <td align="right">
+                        <span>{{poapp.podetails_amount| number:2}}</span>
+                    </td>
+                    <td align="right">
+                        <span>{{poapp.podetails_taxamount |number:2}}</span>
+                    </td>
+                    <td align="right">
+                        <span>{{poapp.podetails_totalamount| number:2 }}</span>
+                    </td>
+                    <td align="center">
+                        <a title="view" align="center" style='cursor: pointer; text-decoration:none;'
+                           data-toggle="modal" data-target="#myedit"
+                           ng-click="godowndetails(poapp.podetails_gid,poapp.product_name,poapp.podetails_qty)"><i
+                                class="material-icons">send</i></a>
+                    </td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <td>
+                        Total
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td align="right">{{calculatePay | number:2}}</td>
+                    <td ng-hide="hide_show"></td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <div class="row  text-left">
+        <form role="form" name="poapprovel">
+            <div class="col-lg-3 col-sm-3 ">
+                <md-input-container class="md-block inputcontainer">
+                    <label> Remarks</label>
+                    <input type="text" ng-maxlength="256" ng-disabled="disabled" id="btn_search_inline" name="Create"
+                           ng-model="remarks" required/>
+                </md-input-container>
+            </div>
+        </form>
+
+    </div>
+    <div class="row ">
+        <div class="col-lg-12 col-sm-12 text-right">
+            <md-button type="button" value="Close" ng-click="Close()">Close</md-button>
+            <md-button type="button" value="submit" ng-hide="disabled" ng-disabled="poapprovel.$invalid"
+                       ng-click="poapprovalsave()" class="md-raised md-primary">PO Cancel
+            </md-button>
+        </div>
+    </div>
+    <div class="modal fade" id="myedit" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false"
+         aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <form name="Delivery" novalidate>
+            <div class="modal-dialog modal-style" role="document">
+                <div class="modal-content">
+                    <div class="modal-header popup-header">
+                        <h5 class="modal-title" id="exampleModalLabel">
+                            Delivery Details
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </h5>
+                    </div>
+                    <div>
+                        {{erroemessagedelivery}}
+                    </div>
+                    <div class="modal-body">
+                        Product Name : {{product_name}} Product Qty:{{product_qty}}
+                        <table class="table  table-striped table-bordered table-condensed table-hover">
+                            <thead class="header">
+                            <tr>
+                                <td style="width:10px;">
+                                    Sno
+                                </td>
+                                <td rowspan="2" style="width:10px;">
+                                    Godown Name
+                                </td>
+                                <td rowspan="2" style="width: 100px;">
+                                    Incharge Name
+                                </td>
+                                <td rowspan="2" style="width: 200px;">
+                                    Address
+                                </td>
+                                <td rowspan="2" style="width: 30px;">
+                                    UOM
+                                </td>
+                                <td rowspan="2" style="width: 30px;">
+                                    Quantity
+                                </td>
+
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="des in godown_detail">
+                                <td>
+                                    {{$index+1}}
+                                </td>
+                                <td>
+                                    <span>{{des.godown_name}} </span>
+                                </td>
+                                <td>
+                                    <span>{{des.employee_name}}</span>
+                                </td>
+                                <td>
+                                    <span>{{des.address_1}}</span>
+                                </td>
+                                <td>
+                                    <span>{{des.uom_name}}</span>
+                                </td>
+                                <td width="55px;">
+                                    <span>{{des.podelivery_qty}}</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" ng-click="deli_close('myedit')">Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false"
+         id="modal-confirm-pro">
+        <div class="modal-dialog modal-style">
+            <div class="modal-content">
+                <div class="modal-header popup-header-confirm">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Confirmation</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row  popup-content">
+                        <h4>
+                            {{Contect_popmessage}}
+                        </h4>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="modal-btn-no" data-dismiss="modal"
+                            ng-click="this[methodclose](param)">No
+                    </button>
+                    <button type="button" class="btn btn-primary" id="modal-btn-s"
+                            ng-click="this[methodok](param,param1)">Yes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endverbatim %}
+<script>
+var myApp = angular.module('Appcancelcreate', ['ngMaterial','ui.bootstrap','ngMessages']).config(function($httpProvider) {
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+});
+myApp.controller('Ctrlcancelcreate', ['$scope', 'Servicecancelcreate', '$mdDialog', '$window', function($scope, Servicecancelcreate, $mdDialog, $window) {
+    $scope.currentPage = 1;
+    $scope.maxSize = 3;
+    $scope.itemsPerPage = 10;
+
+    var PO_Detail = JSON.parse(sessionStorage.getItem('PO_Detail'));
+    if (PO_Detail.pocancel_status != null) {
+        $scope.created = true;
+    }
+    var productname = Servicecancelcreate.getpodetails(PO_Detail.poheader_gid);
+    productname.then(function(productname) {
+        var details = JSON.parse(productname.data)
+        $scope.pocancel = details;
+        if (details.length > 0) {
+            var prodname = $scope.pocancel;
+            if (prodname.length > 0) {
+                $scope.poheader_gid = prodname[0].poheader_gid;
+                $scope.supplier_name = prodname[0].supplier_name;
+                $scope.poheader_sno = prodname[0].poheader_no;
+                $scope.teamandcond_name = prodname[0].poterms_name;
+                if(PO_Detail.pocancel_status=="Approved" || PO_Detail.pocancel_status=="Pending for Approval"){
+                    $scope.disabled=true;
+                }
+                else{
+                    $scope.disabled=false;
+                }
+            }
+            $scope.calculatePay = calucatesum();
+        }
+
+    }, function() {
+        alert('Records not found');
+    });
+
+    function calucatesum() {
+        var sum = 0;
+        var podetails = $scope.pocancel;
+        for (var i = 0; i < podetails.length; i++) {
+            if (podetails[i].podetails_totalamount !== undefined && podetails[i].podetails_totalamount !== "") {
+                sum += parseFloat(podetails[i].podetails_totalamount);
+            }
+        }
+        return sum;
+    };
+
+    $scope.godowndetails = function(gid, product_name, qty) {
+        $scope.product_qty = qty;
+        $scope.product_name = product_name;
+        var getgodown = Servicecancelcreate.getgodown(gid);
+        getgodown.then(function(getgodown) {
+            var delivery_detail = JSON.parse(getgodown.data)
+            $scope.godown_detail = delivery_detail;
+
+        }, function() {
+            alert('Records not found');
+        });
+
+    }
+
+    $scope.Close=function(){
+        $window.location.href = "PO_CancelMaker";
+    }
+
+    $scope.deli_close = function(ev) {
+
+        modalhide(ev);
+    };
+
+    $scope.poapprovalsave = function() {
+        var status = Servicecancelcreate.setapproval($scope.poheader_gid, $scope.remarks);
+        status.then(function(status) {
+            var status = JSON.parse(status.data)
+            if (status == "Success") {
+                alert("Created Successfully")
+                $window.location.href = "PO_CancelMaker";
+            } else {
+                alert("Data Not Inserted");
+            }
+
+
+        }, function() {
+            alert('Records not found');
+        });
+    };
+
+
+}]);
+ myApp.service("Servicecancelcreate", function ($http) {
+
+    this.getgodown = function(detail_gid){
+      var response = $http.post(Appname+"/PODelivery_detail/", { params:{'podetails_gid': detail_gid   } })
+        return response;
+    }
+
+    this.getpodetails = function (po_gid) {
+       var response = $http.post(Appname+"/Approval_PODetail/", { params:{'podetails_gid': po_gid ,'product_name': ''  } })
+        return response;
+    }
+
+    this.setapproval = function ( poheader_gid, remark) {
+      var response = $http.post(Appname+"/Approval_Update/",{params:{'action':'cancel','poheader_gid':poheader_gid,'remark':remark,'entity_gid':1}})
+     return response;
+    }
+
+    });
+
+</script>
+{% endblock %}

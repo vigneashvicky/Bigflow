@@ -1,0 +1,190 @@
+sp
+sp_customer_set
+sp_customer_get
+sp_metadata_get
+sp_city_get
+sp_city_set
+sp_executivemapping_get
+sp_executivemapping_set
+sp_locationpincode_get
+sp_fetschedule_get
+sp_fetreview_get
+sp_fet_get
+
+18-09-2018
+sp_dayvisit_get
+sp_dayvisit_set
+sp_Latlong_set
+sp_Latlong_get
+
+18-09-2018
+sp_fetschedule_get
+sp_fetreview_get
+sp_collection_get
+sp_collection_set
+
+menu for city
+INSERT INTO `galley`.`gal_mst_tmenu` (`menu_code`, `menu_parent_gid`, `menu_name`, `menu_link`, `menu_displayorder`, `menu_level`, `menu_isactive`, `menu_isremoved`, `entity_gid`, `create_by`) VALUES ('MEN084', '45', 'City ', 'City', '2', '3', 'Y', 'N', '1', '1');
+give rights for the inserted menu
+
+18-09-2018
+menu for new employee tracking
+INSERT INTO `galley`.`gal_mst_tmenu` (`menu_code`, `menu_parent_gid`, `menu_name`, `menu_link`, `menu_displayorder`, `menu_level`, `menu_isactive`, `menu_isremoved`, `entity_gid`, `create_by`) VALUES ('MEN085', '2', 'New Tracking Employee', 'emptrackingrep', '2', '3', 'Y', 'N', '1', '1');
+give rights for the inserted menu
+
+menu for Fet Report
+INSERT INTO `galley`.`gal_mst_tmenu` (`menu_code`, `menu_parent_gid`, `menu_name`, `menu_link`, `menu_displayorder`, `menu_level`, `menu_isactive`, `menu_isremoved`, `entity_gid`, `create_by`) VALUES ('MEN086', '2', 'FET REPORT', 'fetreport', '2', '3', 'Y', 'N', '1', '1');
+give rights for the inserted menu
+
+path
+\\tallyserver\D\BACK UP\DEMO\Bigflow\2018\september\18\Dump20180918 - online pincode.sql
+
+
+menu for supplier rate
+
+INSERT INTO `galley`.`gal_mst_tmenu` (`menu_code`, `menu_parent_gid`, `menu_name`, `menu_link`, `menu_displayorder`, `menu_level`, `menu_isactive`, `menu_isremoved`, `entity_gid`, `create_by`) VALUES ('MEN087','45','Supplier Rate','Supplierproduct','1','3','Y','N','1','1');
+give rights for the inserted menu
+
+
+1-10-2018
+sp_GRNQtyList_Get
+
+2018-10-10
+INSERT INTO `galley`.`gal_mst_tref` (`ref_code`, `ref_name`, `ref_fieldname`, `ref_tablename`, `ref_datatype`, `ref_active`, `ref_isremoved`, `entity_gid`, `create_by`) VALUES ('REF030', 'CLIENT_ADDRESS', 'client_gid', 'fet_mst_tclient', 'INTEGER', 'Y', 'N', '1', '1');
+
+INSERT INTO `galley`.`gal_mst_tref` (`ref_code`, `ref_name`, `ref_fieldname`, `ref_tablename`, `ref_datatype`, `ref_active`, `ref_isremoved`, `entity_gid`, `create_by`) VALUES ('REF031', 'CLIENT_CONTACT', 'client_gid', 'fet_mst_tclient', 'INTEGER', 'Y', 'N', '1', '1');
+
+
+
+2018-10-11
+INSERT INTO `galley`.`gal_mst_tmenu` (`menu_gid`, `menu_code`, `menu_parent_gid`, `menu_name`, `menu_link`, `menu_displayorder`, `menu_level`, `menu_mobile`, `menu_isactive`, `menu_isremoved`, `entity_gid`, `create_by`, `create_date`) VALUES ('88', 'MEN088', '0', 'Home', 'Home', '1', '3', 'Y', 'Y', 'N', '1', '1', '2018-10-08 00:00:00');
+INSERT INTO `galley`.`gal_mst_tmenu` (`menu_gid`, `menu_code`, `menu_parent_gid`, `menu_name`, `menu_link`, `menu_displayorder`, `menu_level`, `menu_mobile`, `menu_isactive`, `menu_isremoved`, `entity_gid`, `create_by`, `create_date`) VALUES ('89', 'MEN089', '0', 'ADD-Schedule', 'ADD-Schedule', '1', '3', 'Y', 'Y', 'N', '1', '1', '2018-10-08 00:00:00');
+INSERT INTO `galley`.`gal_mst_tmenu` (`menu_gid`, `menu_code`, `menu_parent_gid`, `menu_name`, `menu_link`, `menu_displayorder`, `menu_level`, `menu_mobile`, `menu_isactive`, `menu_isremoved`, `entity_gid`, `create_by`, `create_date`) VALUES ('90', 'MEN090', '0', 'Day\'s Schedule', 'Day\'s Schedule', '1', '3', 'Y', 'Y', 'N', '1', '1', '2018-10-08 00:00:00');
+INSERT INTO `galley`.`gal_mst_tmenu` (`menu_gid`, `menu_code`, `menu_parent_gid`, `menu_name`, `menu_link`, `menu_displayorder`, `menu_level`, `menu_mobile`, `menu_isactive`, `menu_isremoved`, `entity_gid`, `create_by`, `create_date`) VALUES ('94', 'MEN091', '0', 'Transaction', 'TRANSACTION ', '1', '3', 'Y', 'Y', 'N', '1', '1', '2018-10-08 00:00:00');
+INSERT INTO `galley`.`gal_mst_tmenu` (`menu_gid`, `menu_code`, `menu_parent_gid`, `menu_name`, `menu_link`, `menu_displayorder`, `menu_level`, `menu_mobile`, `menu_isactive`, `menu_isremoved`, `entity_gid`, `create_by`, `create_date`) VALUES ('95', 'MEN092', '94', 'Employee Tracking', 'Employee Tracking', '1', '3', 'Y', 'Y', 'N', '1', '1', '2018-10-08 00:00:00');
+INSERT INTO `galley`.`gal_mst_tmenu` (`menu_gid`, `menu_code`, `menu_parent_gid`, `menu_name`, `menu_link`, `menu_displayorder`, `menu_level`, `menu_mobile`, `menu_isactive`, `menu_isremoved`, `entity_gid`, `create_by`, `create_date`) VALUES ('96', 'MEN093', '94', 'Direct Outcome', 'Direct Outcome', '1', '3', 'Y', 'Y', 'N', '1', '1', '2018-10-08 00:00:00');
+INSERT INTO `galley`.`gal_mst_tmenu` (`menu_gid`, `menu_code`, `menu_parent_gid`, `menu_name`, `menu_link`, `menu_displayorder`, `menu_level`, `menu_mobile`, `menu_isactive`, `menu_isremoved`, `entity_gid`, `create_by`, `create_date`) VALUES ('97', 'MEN094', '94', 'Add Leads', 'Add Leads', '1', '3', 'Y', 'Y', 'N', '1', '1', '2018-10-08 00:00:00');
+INSERT INTO `galley`.`gal_mst_tmenu` (`menu_gid`, `menu_code`, `menu_parent_gid`, `menu_name`, `menu_link`, `menu_displayorder`, `menu_level`, `menu_mobile`, `menu_isactive`, `menu_isremoved`, `entity_gid`, `create_by`, `create_date`) VALUES ('98', 'MEN095', '94', 'Route Summary', 'Route Summary', '1', '3', 'Y', 'Y', 'N', '1', '1', '2018-10-08 00:00:00');
+
+2018-10-12
+INSERT INTO `galley`.`gal_mst_tmenu` (`menu_code`, `menu_parent_gid`, `menu_name`, `menu_link`, `menu_displayorder`, `menu_level`, `menu_mobile`,`menu_isactive`, `menu_isremoved`, `entity_gid`, `create_by`) VALUES ('MEN096','45','Client','Client','1','3','N','Y','N','1','1');
+
+2018-10-22
+SET SQL_SAFE_UPDATES = 0;
+update gal_mst_tmenu set menu_name='Add Schedule' where menu_name='ADD-Schedule';
+
+2018-10-24
+menu for service summary
+
+INSERT INTO `galley_demo`.`gal_mst_tmenu` (`menu_code`, `menu_parent_gid`, `menu_name`, `menu_link`, `menu_displayorder`, `menu_level`,`menu_mobile`, `menu_isactive`, `menu_isremoved`, `entity_gid`, `create_by`) VALUES ('MEN097','94','Service Summary','Service Summary','1','3','Y','Y','N','1','1');
+give rights for the inserted menu
+
+2018-11-23
+update gal_trn_tpoheader set poheader_amount='700330.00' where poheader_gid='156';
+
+update gal_trn_tpodetails set podetails_unitprice='375.00',podetails_amount='187500.00',
+podetails_taxamount='33750.00',podetails_totalamount='221250.00' where podetails_gid='362';
+
+update gal_trn_tpodetails set podetails_unitprice='406.00',podetails_amount='406000.00',
+podetails_taxamount='73080.00',podetails_totalamount='479080.00' where podetails_gid='361';
+
+
+2018-11-24
+
+insert into gal_mst_tproduct(product_code,product_name,product_displayname,product_tradingitem,product_hsn_gid,product_uom_gid,
+product_category_gid,
+product_subcategory_gid,product_productcategory_gid,product_producttype_gid,product_isactive,product_isremoved,
+entity_gid,create_by,create_date,
+insert_flag,update_flag)
+values('PROD000203','GN 050 ZX - CABINET','GN 050 ZX - CABINET','Y',5,2,0,0,10,9,'Y','N',1,1,NOW(),'Y','Y'),
+('PROD000204','40 AMPS RELAY','40 AMPS RELAY','Y',5,2,0,0,10,9,'Y','N',1,1,NOW(),'Y','Y'),
+('PROD000205','BOTTOM STICKER 010 PP','BOTTOM STICKER 010 PP','Y',2,5,0,0,10,5,'Y','N',1,1,NOW(),'Y','Y'),
+('PROD000206','BOTTOM STICKER 005 PP','BOTTOM STICKER 005 PP','Y',2,5,0,0,10,5,'Y','N',1,1,NOW(),'Y','Y'),
+('PROD000207','INPUT OUTPUT SMALL STICKER','INPUT OUTPUT SMALL STICKER','Y',2,5,0,0,10,5,'Y','N',1,1,NOW(),'Y','Y');
+
+2018-11-27
+select * from gal_adm_tversion;
+
+INSERT INTO `galley`.`gal_adm_tversion` (`version_no`, `version_flag`, `entity_gid`, `create_by`) VALUES ('7', 'A', '1', '3');
+
+2018-12-02
+INSERT INTO `galley`.`gal_mst_tmenu` (`menu_code`, `menu_parent_gid`, `menu_name`, `menu_link`, `menu_displayorder`, `menu_level`, `menu_mobile`, `menu_isactive`, `menu_isremoved`, `entity_gid`, `create_by`, `create_date`) VALUES ('MEN098', '34', 'Stock Invertory', 'Invertory', '2', '3', 'N', 'Y', 'N', '1', '1', '2018-12-02');
+
+2018-12-04
+
+insert into galley.gal_mst_tproduct (product_code,product_name,product_displayname,product_tradingitem,product_hsn_gid,product_uom_gid,product_category_gid
+,product_subcategory_gid,product_productcategory_gid,product_producttype_gid,entity_gid,create_by)
+values('PROD000203','GN 050 ZX - CABINET','GN 050 ZX - CABINET','Y','5','2','0','0','10','9','1','1'),
+('PROD000204','40 AMPS RELAY','40 AMPS RELAY','Y','5','2','0','0','10','9','1','1'),
+('PROD000205','BOTTOM STICKER 010 PP','BOTTOM STICKER 010 PP','Y','2','5','0','0','10','5','1','1'),
+('PROD000206','BOTTOM STICKER 005 PP','BOTTOM STICKER 005 PP','Y','2','5','0','0','10','5','1','1'),
+('PROD000207','INPUT OUTPUT SMALL STICKER','INPUT OUTPUT SMALL STICKER','Y','2','5','0','0','10','5','1','1'),
+('PROD000208','14" CRT TV','14" CRT TV','Y','3','2','0','0','9','7','1','1')
+
+2018-12-13
+insert into galley.gal_mst_tproduct (product_code,product_name,product_displayname,product_tradingitem,product_hsn_gid,product_uom_gid,product_category_gid
+,product_subcategory_gid,product_productcategory_gid,product_producttype_gid,entity_gid,create_by)
+values('PROD000210','46" FIXED LCD / LED TV','46" FIXED LCD / LED TV','Y','3','2','0','0','9','7','1','1');
+
+
+###  LOCATION
+
+
+select location_code from gal_mst_tlocation order by location_gid  desc limit 100;
+
+INSERT INTO `gal_mst_tlocation` (`location_cluster_gid`, `location_pincode_gid`, `location_code`,
+`location_name`, `location_sally_name`, `location_isremoved`, `entity_gid`, `create_by`)
+ VALUES ('99', '32836', '518', 'Autoor', 'Autoor', 'N', '1', '3');
+
+ ### 99 Thirunelveli
+
+ INSERT INTO `gal_mst_tlocation` (`location_cluster_gid`, `location_pincode_gid`, `location_code`,
+ `location_name`, `location_sally_name`, `location_isremoved`, `entity_gid`, `create_by`)
+ VALUES ('26', '26139', '519', 'Polichalur', 'Polichalur', 'N', '1', '3');
+
+2018-12-29
+
+INSERT INTO gal_mst_tmenu (menu_code, menu_parent_gid, menu_name, menu_link, menu_displayorder, menu_level,
+ menu_mobile, menu_isactive, menu_isremoved, entity_gid, create_by, create_date) 
+VALUES ('MEN100','34','Stock Invertory Invertory','Invertory',8,3,'N','Y','N',1,1,now());
+
+INSERT INTO gal_mst_tmenu (menu_code, menu_parent_gid, menu_name, menu_link, menu_displayorder, menu_level,
+ menu_mobile, menu_isactive, menu_isremoved, entity_gid, create_by, create_date) 
+VALUES ('MEN101','34','Collection','#',9,2,'N','Y','N',1,1,now());
+
+INSERT INTO gal_mst_tmenu (menu_code, menu_parent_gid, menu_name, menu_link, menu_displayorder, menu_level,
+ menu_mobile, menu_isactive, menu_isremoved, entity_gid, create_by, create_date) 
+VALUES ('MEN102','102','Invoice Mapping','Invoice_Mapping',1,3,'N','Y','N',1,1,now());
+
+INSERT INTO gal_mst_tmenu (menu_code, menu_parent_gid, menu_name, menu_link, menu_displayorder, menu_level,
+ menu_mobile, menu_isactive, menu_isremoved, entity_gid, create_by, create_date) 
+VALUES ('MEN103','102','Payment Summary','Payment_Summary',2,3,'N','Y','N',1,1,now());
+
+INSERT INTO gal_mst_tmenu (menu_code, menu_parent_gid, menu_name, menu_link, menu_displayorder, menu_level,
+ menu_mobile, menu_isactive, menu_isremoved, entity_gid, create_by, create_date) 
+VALUES ('MEN104','102','Payment HO Summary','Payment_HO_Summary',3,3,'N','Y','N',1,1,now());
+
+INSERT INTO gal_mst_tmenu (menu_code, menu_parent_gid, menu_name, menu_link, menu_displayorder, menu_level,
+ menu_mobile, menu_isactive, menu_isremoved, entity_gid, create_by, create_date) 
+VALUES ('MEN105','102','Bank Reconcile Summary','Bank_Reconcile_Summary',4,3,'N','Y','N',1,1,now());
+
+INSERT INTO gal_mst_tmenu (menu_code, menu_parent_gid, menu_name, menu_link, menu_displayorder, menu_level,
+ menu_mobile, menu_isactive, menu_isremoved, entity_gid, create_by, create_date) 
+VALUES ('MEN106','102','Receipt Making','Receipt_Making',5,3,'N','Y','N',1,1,now());
+
+
+2019-01-23
+
+insert into gal_mst_tproduct(product_code,product_name,product_displayname,product_tradingitem,product_hsn_gid,product_uom_gid,
+product_category_gid,
+product_subcategory_gid,product_productcategory_gid,product_producttype_gid,product_isactive,product_isremoved,
+entity_gid,create_by,create_date,
+insert_flag,update_flag)
+values('PROD000212','GN 040 PP -10500MA','040 PP','Y',16,1,0,0,7,4,'Y','N',1,1,NOW(),'Y','Y')
+
+
+01-June-2019 - v1
+
+### To Map the Product Carton For Metal Stand One Product.
+INSERT INTO `galley_XXX`.`gal_map_tprodcarton` (`prodcarton_productgid`, `prodcarton_productcartongid`, `prodcarton_capacity`, `prodcarton_remarks`, `prodcarton_isactive`, `prodcarton_isremoved`, `entity_gid`, `create_by`, `create_date`) VALUES ('263', '52', '10', '10 TX', 'Y', 'N', '1', '3', '2019-06-01 13:30:00');
+

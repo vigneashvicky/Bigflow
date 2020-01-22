@@ -1,0 +1,158 @@
+{% extends 'Shared/mainLayout.html' %}
+{% load static from staticfiles %}
+{% block title %} PO Cancel {% endblock %}
+{% block content %}
+{% csrf_token %}
+{% verbatim %}
+<div class="maincontent">
+    <div ng-app="Apppocancel" ng-controller="Ctrlpocancel" class="container container1">
+        <div class="row">
+            <div class="row-header col-lg-12 col-sm-12">
+                <h4>PO Cancel</h4>
+            </div>
+        </div>
+        </br>
+ <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-3">
+                    <md-input-container class="md-block inputcontainer">
+                        <label>PO No</label>
+                        <input id="ponum" maxlength="256"ng-change="filtersearch()"  ng-model="Po_num"/>
+                    </md-input-container>
+                </div>
+               <div class="col-md-3">
+                    <md-input-container class="md-block inputcontainer">
+                        <label>Supplier</label>
+                        <input id="supplr" maxlength="256"ng-change="filtersearch()"   ng-model="Po_supplier"/>
+                    </md-input-container>
+                </div>
+                <div class="col-md-3">
+                    <md-input-container class="md-block inputcontainer">
+                        <label>PO Amount</label>
+                        <input id="amount"  maxlength="256" ng-change="filtersearch()"  ng-model="Po_amount"/>
+                    </md-input-container>
+                </div>
+            </div>
+ </div>
+        <div class="row table-responsive">
+            <div class="col-md-12 col-lg-12 col-sm-12">
+                <table class="table table-striped table-bordered table-condensed table-hover md-primary"
+                       md-progress="deferred">
+                    <thead class="header">
+                    <tr>
+                        <th>S.No</th>
+                        <th>PO No</th>
+                        <th>Supplier Name</th>
+                        <th>PO Date</th>
+                        <th>PO Amount</th>
+                        <th>PO Status</th>
+                        <th>PO Cancel Status</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="cancel in cancelapprovel.slice(((currentPage-1)*itemsPerPage), ((currentPage)*itemsPerPage))  | filter:searchquery ">
+                        <td>
+                            <center>{{((currentPage-1)*itemsPerPage)+$index+1}}</center>
+                        </td>
+                        <td>{{cancel.poheader_no }}</td>
+                        <td>{{cancel.supplier_name}}</td>
+                        <td>{{cancel.poheader_date | date:"dd-MMM-y"}}</td>
+                        <td align="right">{{cancel.poheader_amount| number:2}}</td>
+                        <td>{{cancel.poheader_status}}</td>
+                        <td>{{cancel.pocancel_status}}</td>
+                          <td align="center">
+                            <a  href="" ng-click="poviewapp(cancel.poheader_gid,cancel.pocancel_status)"> <i class="material-icons">remove_red_eye</i></a>
+
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="8">
+                            <ul uib-pagination total-items="cancelapprovel.length" ng-model="currentPage" max-size="maxSize"
+                                class="pagination-sm" boundary-links="true" items-per-page="itemsPerPage"></ul>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+</div>
+</div>
+{% endverbatim %}
+<script>
+var myApp = angular.module('Apppocancel', ['ngMaterial','ui.bootstrap','ngMessages']).config(function($httpProvider) {
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+});
+
+myApp.controller('Ctrlpocancel', ['$scope', 'Servicepocancel', '$filter', '$mdDialog', '$window', function($scope, Servicepocancel, $filter, $mdDialog, $window) {
+
+    $scope.currentPage = 1;
+    $scope.maxSize = 3;
+    $scope.itemsPerPage = 10;
+
+    var getpoheader = Servicepocancel.getcancelpoappo();
+    getpoheader.then(function(getpoheader) {
+        var cancel_data = JSON.parse(getpoheader.data)
+        $scope.maintable = cancel_data
+        $scope.cancelapprovel = cancel_data;
+        $scope.cancelapprovel=unique($scope.cancelapprovel);
+
+    }, function() {
+        alert('Records not found');
+    });
+
+
+    var unique = function(origArr) {
+    var newArr = [],
+        origLen = origArr.length,
+        found, x, y;
+    for (x = 0; x < origLen; x++) {
+        found = undefined;
+        for (y = 0; y < newArr.length; y++) {
+            if (origArr[x]["poheader_no"] === newArr[y]["poheader_no"]) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            newArr.push(origArr[x]);
+        }
+    }
+    return newArr;
+}
+
+    $scope.filtersearch = function() {
+        $scope.cancelapprovel = $filter('filter')($scope.maintable, {
+            poheader_no: $scope.Po_num,
+            supplier_name: $scope.Po_supplier,
+            poheader_amount: $scope.Po_amount
+        });
+        $scope.userTotalItems = $scope.cancelapprovel.length;
+    }
+
+    $scope.poviewapp = function(poheader_gid, pocancel_status) {
+
+        var podetails = {
+            poheader_gid: poheader_gid,
+            pocancel_status: pocancel_status,
+        };
+        sessionStorage.setItem('PO_Detail', JSON.stringify(podetails));
+        $window.location.href = "pocancelcrte";
+    }
+
+}]);
+
+ myApp.service("Servicepocancel", function ($http) {
+
+    this.getcancelpoappo = function () {
+        var response = $http.post(Appname+"/PO_CancelMaker/", {params:{'poheader_gid':'','supplier_name':'','amount':0.0,'status':''}});
+        return response;
+    }
+    });
+
+</script>
+{% endblock %}

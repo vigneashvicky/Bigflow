@@ -1,0 +1,107 @@
+{% extends 'Shared/mainLayout.html' %}
+{% load static from staticfiles %}
+{% block title %}Barcode Scanning{% endblock %}
+{% block content %}
+{% verbatim %}
+<script src="{% static 'Scripts/Core/pdfviewer.js' %}"></script>
+<script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/149125/pdf.combined.js"></script>
+<div class="maincontent">
+    <div class="container container1" ng-app="App" ng-controller="Ctrl">
+        <div class="row">
+            <div class="row-header col-lg-12 col-sm-12">
+                <div class="col-lg-10 col-sm-10">
+                    <h4><strong>Barcode Scanning</strong></h4>
+                </div>
+            </div>
+        </div>
+<!--             <div ng-include="'pdfviewer'"></div>-->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-3">
+                     <md-input-container class="md-block inputcontainer">
+                        <label>Enter File Path</label>
+                        <input maxlength="40" ng-model="file_path"
+                               placeholder="Enter your Path"
+                               type="text"
+                        />
+                    </md-input-container>
+                </div>
+                <div class="col-md-3">
+                    <md-input-container class="md-block inputcontainer">
+                        <label>Barcode Number</label>
+                        <input maxlength="16" ng-init="barcodenum = 'EMC1234567890123'" ng-model="barcodenum"
+                               placeholder="Enter your Number"
+                               type="text"
+                        />
+                    </md-input-container>
+                </div>
+                <div class="col-md-3">
+                    <md-button class="md-raised custbutton" ng-click="submit()"
+                               value="submit">
+                        Submit
+                    </md-button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endverbatim %}
+<script>
+    var myApp = angular.module('App', ['ngMaterial', 'ui.bootstrap', 'AppCommon','pdf'])
+        .config(function($httpProvider) {
+            $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+            $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+        });
+myApp.run(function($mdDateLocale, $filter) {
+    $mdDateLocale.formatDate = function(date) {
+        return $filter('date')(date, "dd-MMM-yyyy");
+    };
+})
+
+myApp.controller('Ctrl', ['$scope', 'barcodeser', '$mdDialog', '$rootScope', '$window', '$filter','$interval', 'pdfDelegate', '$log',
+    function($scope, barcodeser, $mdDialog, $rootScope, $window, $filter,$interval, pdfDelegate, $log) {
+        var detail = JSON.parse(sessionStorage.getItem('today'));
+        $scope.emp_gid = detail.employee_gid;
+
+
+        $scope.loading = function() {
+            $mdDialog.show({
+                templateUrl: 'loaderSpinner',
+                parent: angular.element(document.body),
+                clickOutsideToClose: false,
+                multiple: true
+            });
+        };
+
+        $scope.endloading = function() {
+            $mdDialog.hide();
+        };
+
+    $scope.submit = function() {
+        $scope.loading();
+        var data = {
+            "Barcodenum": $scope.barcodenum,
+            "GROUP": 'SCAN_IMAGE_BARCODE',
+            "Employee_Gid": $scope.emp_gid,
+            "file_path":$scope.file_path
+        }
+
+        var scandata = barcodeser.scanningbar(data);
+        scandata.then(function(res) {
+                $scope.data = res.data;
+                alert($scope.data);
+            }, function(err) {
+                alert(JSON.stringify(err));
+            })
+            .finally($scope.endloading);
+    }
+}]);
+myApp.service("barcodeser", function($http) {
+    this.scanningbar = function(data) {
+        var response = $http.post(Appname + "/scanning_barcode/", data);
+        return response;
+    }
+});
+
+</script>
+{% endblock %}

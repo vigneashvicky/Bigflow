@@ -1,0 +1,73 @@
+CREATE DEFINER=`developer`@`%` PROCEDURE `sp_OtherCustomer_Set`(IN `ls_Action`varchar(32),IN `ls_Type`varchar(32),IN `ls_ls_SubType` varchar(32),
+IN `lj_Details` json,IN `lj_Classification` json,IN `ls_Createby` varchar(32),OUT `Message` varchar(1024)
+)
+sp_OtherCustomer_Set:BEGIN
+### Ramesh Nov 30 2019
+declare Query_Insert varchar(9000);
+Declare errno int;
+Declare msg varchar(1000);
+declare countRow int;
+
+
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION,sqlwarning
+    BEGIN
+
+     GET CURRENT DIAGNOSTICS CONDITION 1 errno = MYSQL_ERRNO, msg = MESSAGE_TEXT;
+     set Message = concat(errno , msg);
+     ROLLBACK;
+     END;
+
+     select JSON_UNQUOTE(JSON_EXTRACT(lj_Classification, CONCAT('$.Entity_Gid[0]'))) into @Entity_Gid;
+
+             if @Entity_Gid is  null or @Entity_Gid = 0 or @Entity_Gid = '' then
+					set Message = 'Entity Gid Is Needed.';
+                    leave sp_OtherCustomer_Set;
+             End if;
+
+    if  ls_Type = 'FA_CUSTOMER' and s_SubType = 'ADHOC' then
+		select JSON_UNQUOTE(JSON_EXTRACT(lj_Details,CONCAT('$.Customer_Name'))) into @Customer_Name;
+		select JSON_UNQUOTE(JSON_EXTRACT(lj_Details,CONCAT('$.Customer_GST_No'))) into @Customer_GST_No; ### No Col to Save Now
+		select JSON_UNQUOTE(JSON_EXTRACT(lj_Details,CONCAT('$.Customer_Contact_No'))) into @Customer_Contact_No;
+		select JSON_UNQUOTE(JSON_EXTRACT(lj_Details,CONCAT('$.Customer_Address'))) into @Customer_Address;
+		select JSON_UNQUOTE(JSON_EXTRACT(lj_Details,CONCAT('$.Customer_Type'))) into @Customer_Type;
+
+        ### Validations
+        if @Customer_Name is null or @Customer_Name = '' then
+			set Message = 'Customer Name Is Needed.';
+            leave sp_OtherCustomer_Set;
+        End if;
+
+        if @Customer_Type is null or @Customer_Type = '' then
+			set Message = 'Customer Type Is Needed.';
+            leave sp_OtherCustomer_Set;
+        End if;
+
+        #### To get The Customergroup Codes
+
+        set @lj_Codes = '';
+        set @lj_Codes = concat('{
+        "Unique_Name":"CUSTOMER_GROUP",
+        "Unique_Value":"',@Customer_Name,'"
+        }');
+
+							call sp_UniqueCode_Get('UNIQUE','CODE',
+					'
+					{
+					"Unique_Name":"CUSTOMER_GROUP",
+					"Unique_Value":"Grasp Root"
+					}
+					',
+					1,
+					@Message
+					);
+					select @Message;
+
+
+        Insert into gal_mst_tcustomergroup (customergroup_clientgid,customergroup_code,customergroup_name,customergroup_add_gid,entity_gid,create_by)
+	values (0);
+
+
+
+    End if;
+
+END

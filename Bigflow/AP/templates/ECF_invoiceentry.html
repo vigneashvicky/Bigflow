@@ -1,0 +1,678 @@
+{% extends 'Shared/mainLayout.html' %}
+{% load static from staticfiles %}
+{% block title %} ECF Invoice Entry {% endblock %}
+{% block content %}
+{% csrf_token %}
+{% verbatim %}
+<div class="maincontent">
+    <div ng-app="Appsmry" ng-controller="Ctrlsmry" class="container container1">
+        <div class="row">
+            <div class="row-header col-lg-12 col-sm-12">
+                <h4> ECF Invoice Entry</h4>
+            </div>
+        </div>
+        <form role="form" name="inwardentry_valid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="col-md-3">
+                        <md-input-container class="md-block inputcontainer">
+                            <label> Type</label>
+                            <md-select ng-model="selectedtype" required>
+                                <md-option ng-repeat="x in channelddl" ng-value="x.metadata_value"
+                                           ng-click="typeclick(x.metadata_value)">{{ x.metadata_value }}
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+
+                    <div class="col-md-3">
+
+
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Supplier Name</label>
+                            <md-select ng-model="supplier_data"
+
+                                       ng-disabled="disable" md-on-close="clearSearchTerm()"
+                                       data-md-container-class="selectdemoSelectHeader">
+                                <md-select-header class="demo-select-header">
+                                    <input ng-model="searchTerm" type="search"
+                                           placeholder="Search for a Supplier Name.."
+                                           class="demo-header-searchbox md-text"
+                                           onkeydown="mdSelectOnKeyDownOverride(event)">
+                                </md-select-header>
+                                <md-optgroup label="Supplier Name">
+                                    <md-option ng-value="supplier"
+                                               ng-click="supplierclick(supplier)"
+                                               ng-repeat="supplier in invoicesupplier_list |
+              filter:searchTerm">{{supplier.supplier_name}}
+                                    </md-option>
+                                </md-optgroup>
+                            </md-select>
+                        </md-input-container>
+
+
+                    </div>
+                    <div class="col-md-2">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>State</label>
+                            <md-select ng-model="selectedstate" ng-disabled="true" required>
+                                <md-option ng-repeat="x in stateddl"
+                                           ng-selected="supplstate_gid == x.state_gid" ng-value="x.state_gid">{{
+                                    x.state_name }}
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+
+
+                    <div class="col-md-1" ng-hide="ppx_hide">
+                        <input type="checkbox" id="myCheck" ng-model="checkboxModel.value">
+                        <strong id="text">GST Applicable</strong></div>
+
+                    <div class="col-md-3">
+                        <md-input-container class="md-block inputcontainer" ng-hide="!checkboxModel.value">
+                            <label>GST No</label>
+                            <input ng-model="gstno" ng-disabled="true" maxlength="16"/>
+                        </md-input-container>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+
+                    <div class="col-md-3">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Invoice Date</label>
+                            <md-datepicker ng-disabled="service_disable" md-hide-icons="calendar"
+                                           ng-model="to_date"
+                                           md-hide-icons="calendar" ng-click="date" md-min-date="maxDate"
+                                           md-max-date="minDate" formatDate required></md-datepicker>
+                        </md-input-container>
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-3" ng-hide="ppx_hide">
+                        <md-input-container class="md-block inputcontainer">
+
+                            <label>Invoice Number</label>
+                            <input ng-model="invoicenum" maxlength="64" required/>
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-3">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Invoice Amount</label>
+                            <input ng-model="invoiceamount" valid-number maxlength="16" required/>
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-3">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Remarks</label>
+                            <input ng-model="remarks" maxlength="160"/>
+                        </md-input-container>
+                    </div>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="col-md-3" ng-show="!Employe_hide">
+
+
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Employee Name</label>
+
+                            <md-select ng-model="Emp_gid"
+                                       required
+                                       ng-disabled="disable" md-on-close="clearSearchTerm()"
+                                       data-md-container-class="selectdemoSelectHeader">
+                                <md-select-header class="demo-select-header">
+                                    <input ng-model="searchTermemp" type="search"
+                                           placeholder="Search for a Employee Name.."
+                                           class="demo-header-searchbox md-text"
+                                           onkeydown="mdSelectOnKeyDownOverride(event)">
+                                </md-select-header>
+                                <md-optgroup label="Employee Name">
+                                    <md-option ng-value="emp.employee_gid"
+
+                                               ng-repeat="emp in employee |
+              filter:searchTermemp">{{emp.employee_name}}
+                                    </md-option>
+                                </md-optgroup>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+
+
+                    <div class="col-md-3">
+                        <md-input-container class="md-block inputcontainer" >
+                            <label>Branch</label>
+                            <md-select ng-model="selectedsource">
+                                <md-option ng-repeat="x in soourcedata" ng-value="x.branch_gid"
+                                           ng-click="sourceclick(x)">{{ x.branch_name }}
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+
+                    <!--<div class="col-md-3">-->
+                    <!--<md-input-container class="md-block inputcontainer" ng-hide="!checkboxModel.value">-->
+                    <!--<label>GST No</label>-->
+                    <!--<input ng-model="gstno" maxlength="16"/>-->
+                    <!--</md-input-container>-->
+                    <!--</div>-->
+
+                    <div class="col-md-3">
+                        <md-input-container class="md-block inputcontainer" ng-disabled="true"
+                                            >
+                            <label>GST No</label>
+                            <input ng-model="dest_gstno" ng-disabled="true" maxlength="16"/>
+                        </md-input-container>
+                    </div>
+
+                </div>
+                <div class="col-lg-12">
+
+                    <div class="pull-right">
+
+                        <md-button type="submit" class="md-raised md-primary" id="btn_create"
+                                   ng-disabled="inwardentry_valid.$invalid"
+                                   ng-click="add_continue()">
+                            Add
+                        </md-button>
+                        <md-button type="submit" class="md-raised " id="btn_create"
+                                   ng-click="close_click()" href="makersummary">
+                            Close
+                        </md-button>
+
+
+                    </div>
+                </div>
+                <!--                <div class="col-lg-12">-->
+                <!--                    <h3>Invoice Count:<span ng-bind="myText"/></h3></div>-->
+            </div>
+        </form>
+
+        <div class="row table-responsive">
+
+            <div class="col-md-12 col-lg-12 col-sm-12">
+
+
+                <table class="table table-striped table-bordered table-condensed table-hover md-primary"
+                       md-progress="deferred" rz-mode="resizeMode" rz-table="">
+                    <thead class="header">
+                    <tr style="text-align:center">
+                        <th>S.No</th>
+                        <th>CR No</th>
+                        <th><a ng-click="orderByField='invoiceheader_invoicetype'; reverseSort = !reverseSort"
+                               style="color:white">Invoice
+                            Type
+                            <span ng-show="orderByField == 'invoiceheader_invoicetype'"><span
+                                    ng-show="!reverseSort">^</span><span
+                                    ng-show="reverseSort">v</span></span>
+                        </a></th>
+
+
+                        <th><a ng-click="orderByField='supplier_name'; reverseSort = !reverseSort" style="color:white">Supplier
+                            Name
+                            <span ng-show="orderByField == 'supplier_name'"><span ng-show="!reverseSort">^</span><span
+                                    ng-show="reverseSort">v</span></span>
+                        </a></th>
+                        <th><a ng-click="orderByField='employee_name'; reverseSort = !reverseSort" style="color:white">Employee
+                            Name
+                            <span ng-show="orderByField == 'employee_name'"><span ng-show="!reverseSort">^</span><span
+                                    ng-show="reverseSort">v</span></span>
+                        </a></th>
+
+                        <th><a ng-click="orderByField='invoiceheader_invoiceno'; reverseSort = !reverseSort"
+                               style="color:white">Invoice No
+                            <span ng-show="orderByField == 'invoiceheader_invoiceno'"><span
+                                    ng-show="!reverseSort">^</span><span ng-show="reverseSort">v</span></span>
+                        </a></th>
+                        <th>Invoice Date</th>
+                        <th>Invoice Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="sum in maker_summary.slice(((currentPage-1)*itemsPerPage), ((currentPage)*itemsPerPage)) | orderBy:orderByField:reverseSort">
+                        <td class="text-center" ng-model="dept_name">
+                            {{((currentPage-1)*itemsPerPage)+$index+1}}
+                        </td>
+                        <td ng-click="invoicehistory(sum)"><a href="">
+                            {{sum.invoiceheader_crno}}</a>
+                        </td>
+                        <td>
+                            {{sum.invoiceheader_invoicetype}}
+                        </td>
+
+                        <td>
+                            {{sum.supplier_name}}
+                        </td>
+                        <td>
+                            {{sum.employee_name}}
+                        </td>
+                        <td>{{sum.invoiceheader_invoiceno}}</td>
+                        <td>{{sum.invoiceheader_invoicedate_full | date:'dd-MMM-yyyy'}}</td>
+                        <td align="right">{{sum.invoiceheader_amount}}</td>
+                        <td>{{sum.invoiceheader_status}}</td>
+                        <td class="text-center" ng-click="Add_AP(sum)">
+                            <a href=""><i class="material-icons"
+                                          style="material-icons.line-height:3px">send</i></a>
+
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="8">
+                            <ul uib-pagination total-items="maker_summary.length" ng-model="currentPage"
+                                max-size="maxSize"
+                                class="pagination-sm" boundary-links="true" items-per-page="itemsPerPage"></ul>
+                        </td>
+                        <td colspan="2" style="padding: 34px">
+                            <strong>Total Count:{{maker_summary.length}}</strong>
+
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+                <div class="row ">
+                    <div class="col-lg-12 col-sm-12 text-right">
+
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endverbatim %}
+<style>.ovh { overflow: hidden; }</style>
+<script>
+var myApp = angular.module('Appsmry', ['ngMaterial', 'ui.bootstrap', 'AppCommon'])
+    .config(function($httpProvider) {
+        $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+        $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+    });
+myApp.controller('Ctrlsmry', ['$scope', 'invoiceService', '$filter', '$mdDateLocale', '$window', '$mdDialog', '$element',
+    function($scope, invoiceService, $filter, $mdDateLocale, $window, $mdDialog, $element) {
+
+        $element.find('input').on('keydown', function(ev) {
+            ev.stopPropagation();
+        });
+        $scope.currentPage = 1;
+        $scope.maxSize = 3;
+        $scope.itemsPerPage = 10;
+
+        $scope.to_date = new Date();
+        $scope.selectedtype = '';
+        $scope.invoicenum = '';
+        $scope.supplier_data = '';
+        $scope.selectedstate = '';
+        $scope.invoiceamount = '';
+        $scope.gstno = '';
+        $scope.CR_data = [];
+        $scope.selectedsource = 0
+        $mdDateLocale.formatDate = function(date) {
+            return $filter('date')($scope.to_date, "dd-MMM-yyyy");
+        };
+
+        $scope.checkboxModel = {
+            value: false,
+        };
+
+        $scope.ls_followup_date = new Date();
+        $scope.to_date = new Date();
+
+        $scope.minDate = new Date(
+            $scope.ls_followup_date.getFullYear(),
+            $scope.ls_followup_date.getMonth(),
+            $scope.ls_followup_date.getDate()
+        );
+
+        $scope.maxDate = new Date(
+            $scope.ls_followup_date.getFullYear(),
+            $scope.ls_followup_date.getMonth() - 12,
+            $scope.ls_followup_date.getDate() - 1
+        );
+
+        $scope.loading = function() {
+            $mdDialog.show({
+                templateUrl: 'loaderSpinner',
+                parent: angular.element(document.body),
+                clickOutsideToClose: false
+            });
+        };
+
+        $scope.endloading = function() {
+            $mdDialog.hide();
+        };
+        var channel = invoiceService.ddl('invoiceheader', 'invoicetype');
+        channel.then(function(result) {
+                var channel_data = JSON.parse(result.data)
+
+                $scope.channelddl = JSON.parse(result.data)
+                    //$filter('filter')(channel_data, function(value) {
+                    //  return value.metadata_value === "Non PO" || value.metadata_value === "PO";
+                    //  });
+            },
+            function(err) {
+                alert('No data!.');
+            }).finally();
+
+        var supplier = invoiceService.getdropdown("supplier");
+        supplier.then(function(supplier) {
+
+            var supplier = JSON.parse(supplier.data);
+
+            $scope.invoicesupplier_list = supplier;
+
+        }, function() {
+            alert("Record Not Found")
+        });
+
+        var sttddl = invoiceService.getstateddl()
+        sttddl.then(function(result) {
+                $scope.stateddl = [];
+                $scope.stateddl = JSON.parse(result.data);
+
+            },
+            function() {
+                alert('no data');
+            });
+
+        var employee = invoiceService.getemployee();
+        employee.then(function(result) {
+                var employee_data = JSON.parse(result.data)
+                $scope.employee = employee_data;
+            },
+            function(err) {
+                alert('No data!.');
+            }).finally($scope.endloading);
+
+        var resaondata = invoiceService.getentitydata();
+        resaondata.then(function(result) {
+            // alert( JSON.stringify(result.data.DATA))
+            $scope.soourcedata = result.data.DATA
+
+        })
+
+        $scope.sourceclick = function(value) {
+            var branchData = $filter('filter')(JSON.parse(value.branchdetail), {
+                metadata_value: "GSTNO"
+            });
+            $scope.dest_gstno = "";
+            $scope.dest_gstno = branchData[0].branch_metadatavalue;
+
+        }
+
+        $scope.supplierclick = function(supplierdata) {
+
+            var suppdata = invoiceService.getsupplierdata(supplierdata.supplier_gid);
+            suppdata.then(function(result) {
+
+                $scope.supplstate_gid = result.data.DATA[0].address_state_gid;
+                $scope.gstno = result.data.DATA[0].taxdetails_taxno;
+            })
+        }
+
+        $scope.typeclick = function(type) {
+            $scope.ppx_hide = false;
+            if (type == "PPX" || type == "EMP Claim") {
+
+                $scope.invoicenum = "PPX-no";
+                if (type == "PPX") {
+                    $scope.ppx_hide = true;
+                }
+            } else {
+
+            }
+        }
+
+        function selecteddate() {
+            var d = $scope.to_date;
+            var curr_date = d.getDate();
+            var curr_month = d.getMonth();
+            curr_month++;
+            var curr_year = d.getFullYear();
+            $scope.Service_date = curr_year + "-" + curr_month + "-" + curr_date;
+        }
+
+        function amount_toinr(amount) {
+            var x = amount;
+            x = x.toString();
+            var afterPoint = '';
+            if (x.indexOf('.') > 0)
+                afterPoint = x.substring(x.indexOf('.'), x.length);
+            x = Math.floor(x);
+            x = x.toString();
+            var lastThree = x.substring(x.length - 3);
+            var otherNumbers = x.substring(0, x.length - 3);
+            if (otherNumbers != '')
+                lastThree = ',' + lastThree;
+            var res = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree + afterPoint;
+            return res;
+
+        }
+
+        invoicemaker()
+
+        function invoicemaker() {
+            var summary = invoiceService.getmakerservice("INVOICE_MAKER_SUMMARY","");
+            summary.then(function(result) {
+                    $scope.maker_summary = result.data;
+                    $scope.maintable = result.data;
+                    angular.forEach($scope.maker_summary, function(value, key) {
+
+                        var inramount = amount_toinr($scope.maker_summary[key].invoiceheader_amount)
+                        $scope.maker_summary[key].invoiceheader_amount = inramount
+                        if (value.invoiceheader_invoicetype == "PO") {
+                            $scope.maker_summary[key].invoiceheader_invoicetype = "PO "
+                        }
+                    })
+                },
+                function(err) {
+                    alert('No data!.');
+                }).finally($scope.endloading);
+        }
+
+
+        $scope.AP = [];
+
+        function APjson_set() {
+
+            if ($scope.Emp_gid == undefined || $scope.Emp_gid == '') {
+                $scope.Emp_gid = 0;
+            }
+            if ($scope.supplier_data.supplier_gid == undefined || $scope.supplier_data.supplier_gid == '') {
+                var supgid = 0;
+            } else {
+                var supgid = $scope.supplier_data.supplier_gid;
+            }
+
+            $scope.AP.push({
+                "Invoice_Type": $scope.selectedtype,
+                "Supplier_gid": supgid,
+                "Sup_state_gid": $scope.selectedstate,
+                "Inwarddetails_gid": 1,
+                "Is_GST": $scope.gst_check,
+                "Invoice_Date": $scope.Service_date,
+                "Invoice_No": $scope.invoicenum,
+                "Invoice_Tot_Amount": $scope.invoiceamount,
+                "Supplier_GST_No": $scope.gst_number,
+                "Header_Status": "NEW",
+                "Reprocessed": "",
+                "Remark": $scope.remarks,
+                "Employee_gid": $scope.Emp_gid,
+                "GROUP": "INWARD",
+                "branch_gid": $scope.selectedsource
+
+            })
+        }
+
+        $scope.add_continue = function() {
+
+            if ($scope.selectedtype !== '') {
+
+                if ($scope.checkboxModel.value == true) {
+                    $scope.gst_check = 'Y';
+                    if ($scope.gstno !== '') {
+                        $scope.gst_number = $scope.gstno;
+                    } else {
+                        alert("Please Enter GST No");
+                        return false;
+                    }
+                } else {
+                    $scope.gst_check = 'N';
+                    $scope.gst_number = '';
+
+                }
+
+                selecteddate();
+                APjson_set();
+                var header_json = {
+                    HEADER: $scope.AP
+                }
+
+                var save_service = invoiceService.invoiceset(header_json);
+                save_service.then(function(result) {
+
+                    $scope.AP = [];
+                    if (result.data == 'SUCCESS' || result.data == 'INVOICE ALREADY EXISTS.') {
+                        if (result.data == 'INVOICE ALREADY EXISTS.') {
+                            alert(result.data)
+                        } else {
+                            alert("Details Saved Successfully")
+                            invoicemaker()
+                            $scope.selectedtype = "";
+                            $scope.invoicenum = "";
+                            $scope.supplier_data = "";
+                           // $scope.selectedstate = "";
+                            $scope.invoiceamount = "";
+                            $scope.gstno = "";
+                            $scope.remarks = "";
+                            $scope.checkboxModel.value = false;
+                            $scope.Emp_gid = "";
+                            $scope.selectedsource = 0;
+                            $scope.dest_gstno = "";
+                        }
+
+                    } else {
+                        alert("Error While Insert")
+                    }
+                })
+            }
+        }
+
+        $scope.Add_AP = function(detail) {
+
+            $scope.Invoice_details = detail;
+            sessionStorage.clear();
+                if ($scope.Invoice_details.invoiceheader_invoicetype == "PO ") {
+
+                    $scope.Invoice_details.invoiceheader_invoicetype = "PO"
+
+                }
+
+                var makerdtl = {
+                    type: $scope.Invoice_details.invoiceheader_invoicetype,
+                    invoiceheader_gid: $scope.Invoice_details.invoiceheader_gid,
+                    supplier_gid: $scope.Invoice_details.supplier_gid
+                };
+                if ($scope.Invoice_details.invoiceheader_status !== 'REPROCESS') {
+                    sessionStorage.setItem('makerdtl_ECF', JSON.stringify(makerdtl));
+                    if($scope.Invoice_details.invoiceheader_invoicetype != 'PO'){
+
+                       $window.location.href = "Ecf_billentry";
+
+                     }else{
+
+                       var POdtl = {
+                                pono: $scope.POno,
+                                supplier_gid: $scope.Invoice_details.supplier_gid,
+                                invoiceheader_gid: $scope.Invoice_details.invoiceheader_gid,
+                                Status: "NEW",
+
+                            };
+                        sessionStorage.setItem('POdtl', JSON.stringify(POdtl));
+
+
+                        $window.location.href = "ECFPOinvoicemk";
+
+                     }
+
+                } else {
+                    sessionStorage.setItem('editdtl', JSON.stringify(makerdtl));
+                 //   $window.location.href = "billentryedit";
+
+                }
+        }
+
+
+    }
+]);
+
+
+myApp.service("invoiceService", function ($http,$filter) {
+    this.getdropdown = function (tablename) {
+        var responsee = $http.post(Appname+"/Dropdown_detail_ap/",{params:{"tablename":tablename,"gid":0,"name":''}});
+        return responsee;
+    }
+
+    this.getstateddl = function (d) {
+        var response = $http.get(Appname+"/stateddl/");
+        return response;
+
+    }
+
+       this.getemployee=function(){
+        var response=$http.get(Appname+"/empddl/");
+        return response;
+     }
+
+   this.ddl=function(tablename,columnname){
+        var response=$http.get(Appname+"/get_custdata/",{params:{"tablename":tablename,"columnname":columnname}});
+        return response;
+    }
+
+    this.invoiceset=function(headerjson){
+        var response=$http.post(Appname+"/ECFInvoiceheader_set/",{params:{"action":"INSERT","type":"INVOICE_HEADER","header_json":headerjson,"debit_json":{},"detail_json":{},"status_json":{}}});
+        return response;
+    }
+
+    this.invoiceget=function(inwarddetail_gid){
+        var response=$http.post(Appname+"/APInvoice_get/",{params:{"action":"INVOICE_MAKER","ponumber":"","supplier_gid":1,"inwarddetail_gid":inwarddetail_gid,"inwardheader_gid":0,"status":""}});
+        return response;
+    }
+
+    this.getentitydata = function () {
+        var response=$http.post(Appname+"/classificationdata_get/",{params:{"type":"Mode","Sub_Type":"Summary",
+                               "FILTER":{},"CLASSIFICATION":{"Entity_Gid":[0]}}});
+        return response;
+    }
+
+    this.getsupplierdata = function (supp_gid) {
+        var response=$http.post(Appname+"/supplierdata_get/",{params:{"type":"Suppplier","Sub_Type":"GSTNO",
+                               "FILTER":{"Supplier_gid":supp_gid},"CLASSIFICATION":{"Entity_Gid":[0]}}});
+        return response;
+    }
+    this.getmakerservice = function (action,ecfno) {
+        var response=$http.post(Appname+"/ECFInvoice_get/",{params:{"action":action,"ecfnumber":ecfno,"supplier_gid":0,"inwarddetail_gid":0,"inwardheader_gid":0,"status":"NEW,REPROCESS"}});
+        return response;
+    }
+
+
+    });
+
+
+
+
+
+
+
+
+
+
+</script>
+{% endblock %}

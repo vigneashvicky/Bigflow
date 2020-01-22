@@ -1,0 +1,146 @@
+{% extends 'Shared/mainLayout.html' %}
+{% load static from staticfiles %}
+{% block title %} GRN Inward Summary {% endblock %}
+{% block content %}
+{% csrf_token %}
+{% verbatim %}
+<div class="maincontent">
+    <div ng-app="Appgrnsmry" ng-controller="Ctrlgrnsmry" class="container container1">
+        <div class="row">
+            <div class="row-header col-lg-12 col-sm-12">
+                <h4>GRN Inward Summary </h4>
+            </div>
+        </div>
+        </br>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-3">
+                    <md-input-container class="md-block inputcontainer">
+                        <label>GRN Number</label>
+                        <input id="ponum" maxlength="256" ng-model="grn_number" ng-change="filtersearch()"/>
+                    </md-input-container>
+                </div>
+                <div class="col-md-3">
+                    <md-input-container class="md-block inputcontainer">
+                        <label>Supplier</label>
+                        <input id="supplr" maxlength="256" ng-model="Supplier_name" ng-change="filtersearch()"/>
+                    </md-input-container>
+                </div>
+                <div class="col-md-6 text-right">
+                    <a href="grncreate">
+                        <md-button class="md-fab md-mini md-primary custbutton" ng-click="add()">
+                            <md-icon>add</md-icon>
+                            <md-tooltip>ADD GRN</md-tooltip>
+                        </md-button>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row table-responsive">
+            <div class="col-md-12 col-lg-12 col-sm-12">
+                <table class="table table-striped table-bordered table-condensed table-hover md-primary"
+                       md-progress="deferred">
+                    <thead class="header">
+                    <tr>
+                        <th>S.No</th>
+                        <th>GRN No</th>
+                        <th>PO No</th>
+                        <th>DC No</th>
+                        <th>Invoice No</th>
+                        <th>Supplier</th>
+                        <th>UOM</th>
+                        <th>Received Quantity</th>
+                        <th>Status</th>
+                        <th>View</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="grn in grnheader.slice(((currentPage-1)*itemsPerPage),((currentPage)*itemsPerPage)) | filter:search:strict">
+                        <td>
+                            <center>{{((currentPage-1)*itemsPerPage)+$index+1}}</center>
+                        </td>
+                        <td>{{grn.grninwardheader_code }}</td>
+                        <td>{{grn.poheader_no }}</td>
+                        <td>{{grn.grninwardheader_dcnote }}</td>
+                        <td>{{grn.grninwardheader_invoiceno}}</td>
+                        <td>{{grn.supplier_name}}</td>
+                        <td>{{grn.podetails_uom}}</td>
+                        <td>{{grn.grninwarddetails_qty}}</td>
+                        <td>{{grn.grninwardheader_status}}</td>
+                         <td align="center">
+                            <span class="editlink" ng-click="grnviewapp(grn.grninwardheader_gid,grn.grninwardheader_status,grn.supplier_gid)">
+                               <i class="material-icons">visibility</i>
+                                <md-tooltip>View</md-tooltip>
+                             </span>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="10">
+                            <ul uib-pagination total-items="grnheader.length" ng-model="currentPage" max-size="maxSize"
+                                class="pagination-sm" boundary-links="true" items-per-page="itemsPerPage"></ul>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endverbatim %}
+<script>
+var myApp = angular.module('Appgrnsmry', ['ngMaterial','ui.bootstrap','ngMessages']).config(function($httpProvider) {
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+});
+
+myApp.controller('Ctrlgrnsmry', ['$scope','Servicegrnsmry','$mdDialog','$window','$filter', function($scope,Servicegrnsmry,$mdDialog,$window,$filter) {
+  $scope.currentPage=1;
+    $scope.maxSize=3;
+    $scope.itemsPerPage=10;
+    $scope.maintable = [];
+sessionStorage.setItem('grn_header', '');
+
+ $scope.filtersearch = function() {
+        $scope.grnheader = $filter('filter')($scope.maintable, { "grninwardheader_code": $scope.grn_number,"supplier_name":$scope.Supplier_name });
+        $scope.userTotalItems = $scope.grnheader.length;
+    }
+
+$scope.grnviewapp=function(grnheader_gid,grnheader_status,grnheader_supplier_gid){
+
+   var grnheader = {
+            grnheader_gid: grnheader_gid,
+            grnheader_status: grnheader_status,
+            grnheader_supplier_gid:grnheader_supplier_gid,
+            grnheader_approve:'NO',
+        };
+        sessionStorage.setItem('grn_header', JSON.stringify(grnheader));
+<!--        $window.location.href = "grncreate";-->
+           $window.location.href = "grn_details_view";
+}
+
+var get_header=Servicegrnsmry.getgrnheader()
+       get_header.then(function (result){
+       $scope.grnheader=[];
+        $scope.maintable =result.data;
+        $scope.grnheader = $scope.maintable;
+        $scope.userTotalItems = $scope.poheader.length;
+        $scope.Totalpages = Math.ceil($scope.grnheader.length / $scope.itemsPerPage);
+            }),function(){
+        alert('no data');
+         };
+   }]);
+
+ myApp.service("Servicegrnsmry", function ($http) {
+     this.getgrnheader = function () {
+        var response = $http.get(Appname+"/get_grnheadersumry/");
+        return response;
+    }
+ });
+
+
+</script>
+{% endblock %}

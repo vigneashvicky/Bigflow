@@ -1,0 +1,1317 @@
+{% extends 'Shared/mainLayout.html' %}
+{% load static from staticfiles %}
+{% block title %} Asset Maker {% endblock %}
+{% block content %}
+{% csrf_token %}
+{% verbatim %}
+<div class="maincontent">
+    <div class="container container1" ng-app="dateapp" ng-controller="datectrl" ng-cloak>
+        <div class="row">
+            <div class="row-header col-lg-12 col-sm-12">
+                <div class="col-md-3">
+                    <h4>Asset Maker </h4>
+                </div>
+                <div class="col-md-3">
+                </div>
+                <div class="col-md-3">
+                </div>
+            </div>
+
+        </div>
+        <br/>
+        <br/>
+        <div class="row table-responsive">
+            <div class="col-md-12 col-lg-12 col-sm-12">
+                <table class="table table-striped table-bordered table-condensed table-hover md-primary"
+                       id="tb_emp">
+                    <thead class="header">
+
+                    <th scope="col" class="text-center">S.No</th>
+                    <th scope="col" class="text-center"><a
+                            ng-click="orderByField='asset_id'; reverseSort = !reverseSort"
+                            style="color:white">Invoice No
+                        <span ng-show="orderByField == 'asset_id'"><span></span></span>
+                    </a></th>
+                    <th scope="col" class="text-center">Invoice Type</th>
+                    <th scope="col" class="text-center">Invoice Value</th>
+                    <th scope="col" class="text-center">Invoice Date</th>
+                    <th scope="col" class="text-center">Supplier Name</th>
+                    <th scope="col" class="text-center">PO NOs</th>
+                    <th scope="col" class="text-center">Employee Name</th>
+                    <th scope="col" class="text-center">Amount Paid</th>
+                    <th scope="col" class="text-center">Credit Amount</th>
+                    <th scope="col" class="text-center">Action</th>
+                    </thead>
+
+                    <tbody>
+                    <tr ng-repeat=" ins in asset_invoice.slice(((currentPage-1)*itemsPerPage), ((currentPage)*itemsPerPage)) | orderBy:orderByField:reverseSort">
+                        <td class="text-center">
+                            <center>{{((currentPage-1)*itemsPerPage)+$index+1}}</center>
+                        </td>
+                        <td class="text-center">{{ins.invoiceheader_invoiceno}}</td>
+                        <td class="text-center">{{ins.invoiceheader_invoicetype}}</td>
+                        <td class="text-left">{{ins.invoiceheader_amount| number : fractionSize}}</td>
+                        <td class="text-center" style="width:100px;">{{ins.invoiceheader_invoicedate}}</td>
+                        <td class="text-left" style="width:200px;">{{ins.supplier_name}}</td>
+                        <td class="text-center">{{ins.po_nos}}</td>
+                        <td class="text-left" style="width:150px;">{{ins.employee_name}}</td>
+                        <td class="text-left">{{ins.amount_paid | number : fractionSize}}</td>
+                        <td class="text-left">{{ins.credit_amount | number : fractionSize}}</td>
+                        <td class="text-center"><span class="editlink" ng-click="viewdet(ins)">View</span></td>
+                    </tr>
+                    <tr ng-show="asset_invoice.length ==  0">
+                        <td class="warning" colspan="11">
+                            No Records Found.
+                        </td>
+                    </tr>
+
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="9">
+                            <ul boundary-links="true" class="pagination-sm cust_pagination"
+                                items-per-page="itemsPerPage"
+                                max-size="maxSize"
+                                ng-model="currentPage" total-items="pageLength"
+                                uib-pagination></ul>
+                        </td>
+                        <td colspan="2" class="text-left">
+                            <span>Total Count:<br/> <b class="text-centre"> {{asset_invoice.length}}</b></span>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+                <div class="row">
+                    <div class="col-xs-12 text-center">
+                        <md-button class="md-raised" data-dismiss="modal" ng-href="fa_summary">Back
+                            <md-tooltip>close</md-tooltip>
+                        </md-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--popup page start-->
+        <div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade" data-backdrop="static"
+             data-keyboard="false"
+             id="viewmodal" role="dialog"
+             style="height:auto;width:100%" tabindex="-1">
+            <div class="modal-dialog modal-lg modal-style" role="document">
+                <div class="modal-content">
+                    <div class="header">
+                        <div class="modal-header popup-header">
+                            <h5 class="modal-title" id="exampleModalLabel">
+                                <strong>Asset Add For {{ invoice_supplier }}</strong>
+                                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </h5>
+                        </div>
+                    </div>
+                    <div class="row">
+                    </div>
+                    <br/>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-3">
+                                <b>Invoice Tax Amt : &#8377; {{invoice_taxamt | number : 0}}</b>
+                            </div>
+                            <div class="col-md-3">
+                                <b>Invoice Total Amt : <span>&#8377; {{ invoice_totalamt | number : 0}} </span></b>
+                            </div>
+                            <div class="col-md-2">
+                                <md-checkbox ng-show="hide"
+                                             ng-model="other_expence"
+                                             aria-label="Checkbox 2"
+                                             ng-true-value="'YES'"
+                                             ng-false-value="'NO'" flex>Other Expence
+                                </md-checkbox>
+                            </div>
+
+                            <div class="col-md-2">
+                                <md-input-container class="md-block inputcontainer" ng-show="hide">
+                                    <md-radio-group layout="row" ng-change="" ng-model="option_radio"
+                                                    ng-init="option_radio = 'Without_Tax'">
+                                        <md-radio-button value="Tax">WithTax</md-radio-button>
+                                        <md-radio-button ng-selected="true" value="Without_Tax" checked>Without
+                                            Tax
+                                        </md-radio-button>
+                                    </md-radio-group>
+                                </md-input-container>
+                            </div>
+                            <div class="col-md-2">
+                            </div>
+                            <div class="col-md-2">
+                            </div>
+                            <div class="col-md-3" style="margin-top:12px">
+                                <md-autocomplete
+                                        md-clear-button="true"
+                                        md-input-maxlength=126
+                                        md-item-text="item.assetlocation_name"
+                                        md-items="item in querySearch(searchTe)"
+                                        md-min-length=0
+                                        md-no-cache="true"
+                                        md-search-text="searchTe"
+                                        md-selected-item="selectedloc"
+                                        md-selected-item-change="ACselectchange(item)"
+                                        placeholder="Location">
+                                    <md-item-template>
+                                        <span md-highlight-text="searchTe"> {{item.assetlocation_name}} </span>
+                                    </md-item-template>
+                                    <md-not-found>
+                                        No Location matching "{{searchTe}}" were found.
+                                    </md-not-found>
+                                </md-autocomplete>
+                            </div>
+                            <div class="col-md-1">
+                                <md-button class="md-fab md-mini md-primary custbutton" ng-click="location_pop()">
+                                    <md-icon class="material-icons editlink">location_on</md-icon>
+                                    <md-tooltip>location add</md-tooltip>
+                                </md-button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="body">
+                        <div class="modal-body popup-body">
+                            <div class="row">
+                                <div class="col-lg-12 col-sm-12">
+                                    <div class="row table-responsive">
+                                        <div class="col-md-12 col-lg-12 col-sm-12">
+                                            <form name="demoForm">
+                                                <table class="table table-striped table-bordered table-condensed table-hover md-primary">
+                                                    <thead class="header">
+                                                    <th scope="col" class="text-center">S.No</th>
+                                                    <th scope="col" class="text-center">Product Name</th>
+                                                    <th scope="col" class="text-center">Unit Price</th>
+                                                    <th scope="col" class="text-center">Quantity</th>
+                                                    <!--                                                    <th scope="col" class="text-center">Adjusted Quantity</th>-->
+                                                    <th scope="col" class="text-center">Branch</th>
+                                                    <th scope="col" class="text-center">Catagory</th>
+                                                    <th scope="col" class="text-center"> Image upload</th>
+                                                    <th scope="col" class="text-center">Put To Use Date</th>
+                                                    <th scope="col" class="text-center"> Select
+                                                        <input ng-click="selectall()"
+                                                               ng-model="checkall" ng-checked="checkall"
+                                                               type="checkbox">
+                                                    </th>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tr ng-repeat="ast in invoice_asset">
+                                                        <td class="text-center" style="width:20px;">
+                                                            <center>{{((Assetcrntpge-1)*Assetitmpge)+$index+1}}
+                                                            </center>
+                                                        </td>
+                                                        <td class="text-left" style="width:100px;">
+                                                            {{ast.product_name}}
+                                                        </td>
+                                                        <td class="text-right" style="width:20px;">&#8377;{{
+                                                            ast.invoicedetails_unitprice | number :
+                                                            fractionSize}}
+                                                        </td>
+                                                        <td class="text-right" style="width:20px;">
+                                                            {{ast.invoicedetail_qty}}
+                                                            <md-icon ng-click="qtypop(ast,$index)" ng-model="ast.color"
+                                                                     ng-style="{ color: ast.color }">call_split
+                                                            </md-icon>
+                                                        </td>
+                                                        <!--                                                        <td class="text-right" style="width:20px;">-->
+                                                        <!--                                                            <input type="text" style="width:75px;" numbers-only-->
+                                                        <!--                                                                   required-->
+                                                        <!--                                                                   class="form-control" maxlength="3"-->
+                                                        <!--                                                                   ng-model="emp.grninwarddetails_qty">-->
+                                                        <!--                                                        </td>-->
+                                                        <!--                                                        <td class="col-md-3" style="width:20px;">-->
+                                                        <!--                                                            <input type="text" style="width:100px;" numbers-only-->
+                                                        <!--                                                                   required-->
+                                                        <!--                                                                   class="form-control" min="10"-->
+                                                        <!--                                                                   ng-model="emp.assetdetails_value"></td>-->
+                                                        <td class="text-left" style="width:40px;">{{ast.branch_name}}
+                                                        </td>
+                                                        <td class="text-center" style="width:100px;">
+                                                            <md-autocomplete
+                                                                    md-no-cache="true"
+                                                                    md-selected-item="ast.selectedItem"
+                                                                    md-search-text="ast.asset_cat_gid"
+                                                                    md-selected-item-change="ACselectchange(item)"
+                                                                    md-items="item in querySearchs(ast.asset_cat_gid)"
+                                                                    md-item-text="item.assetcat_subcatname"
+                                                                    md-min-length=0>
+                                                                <md-item-template>
+                                                                    <span md-highlight-text="searchText"> {{item.assetcat_subcatname}} </span>
+                                                                </md-item-template>
+                                                                <md-not-found>
+                                                                    No Catagory matching "{{searchText}}" were found.
+                                                                </md-not-found>
+                                                            </md-autocomplete>
+
+                                                        </td>
+                                                        <td class="text-center" style="width:100px;">
+                                                            <input type="file" ng-model="ast.fileinput" name="files"
+                                                                   base-sixty-four-input multiple
+                                                                   accept="image/*, .zip" minsize="500"
+                                                                   style="width:140px;"
+                                                                   required minnum="2" ng-change=""
+                                                                   id="file{{$index}}"/>
+                                                        </td>
+                                                        <td class="text-center" style="width:100px;">
+                                                            <md-datepicker md-hide-icons="calendar"
+                                                                           ng-required="true"
+                                                                           md-min-date="minDate" md-open-on-focus
+                                                                           md-max-date="maxDate"
+                                                                           ng-init="option_radio = dbdate"
+                                                                           ng-model="ast.cap_date"
+                                                                           formatDate></md-datepicker>
+                                                        </td>
+                                                        <td class="text-center" style="width:10px;">
+                                                            <input
+                                                                    ng-change="selectcheck($index)"
+                                                                    ng-click="selectEntity()"
+                                                                    ng-model="ast.isChecked" ng-checked="isChecked"
+                                                                    type="checkbox">
+                                                        </td>
+                                                    </tr>
+                                                    <tr ng-show="invoice_asset.length ==  0">
+                                                        <td class="warning" colspan="8">
+                                                            No Records Found.
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                    <tfoot>
+                                                    <tr>
+                                                        <td colspan="7">
+                                                            <ul boundary-links="true"
+                                                                class="pagination-sm cust_pagination"
+                                                                items-per-page="itemsPerPage"
+                                                                max-size="maxSize"
+                                                                ng-model="currentPage" total-items="pageLength"
+                                                                uib-pagination></ul>
+
+                                                        </td>
+                                                        <td colspan="1">
+                                                            <p>
+                                                                <span class="text-right">Amt Capitalised <br/> <b>  &#8377; {{finalamt | number : 0}}</b></span>
+                                                            </p>
+                                                        </td>
+                                                        <td colspan="1" class="text-left">
+                                                            <span>Total Count:<br/> <b> {{invoice_asset.length}}</b></span>
+                                                        </td>
+                                                    </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <md-button class="btn btn-info custbutton" ng-click="Save(emp)"
+                                       ng-disabled="enable_update">Submit
+                                <md-tooltip>Save</md-tooltip>
+                            </md-button>
+                            <md-button class="md-raised" data-dismiss="modal">Back
+                                <md-tooltip>close</md-tooltip>
+                            </md-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--        popup page End-->
+        <!--        quantity popup-->
+        <div aria-hidden="true" aria-labelledby="" class="modal fade" data-backdrop="static"
+             data-keyboard="false"
+             id="quantitymodal" role="dialog"
+             style="height:auto;width:100%" tabindex="-5">
+            <div class="modal-dialog modal-md modal-style" role="document">
+                <div class="modal-content">
+                    <div class="header">
+                        <div class="modal-header popup-header">
+                            <h5 class="modal-title" id="ModalLabel">
+                                <strong>Split Quantity with Location- {{ Product_name }}</strong>
+                                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </h5>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                    </div>
+                    <br/>
+                    <div class="row">
+
+                        <div class="col-md-12">
+                            <div class="col-md-3">
+                                <b>Asset Quantity : {{total_qty}}</b>
+                            </div>
+                            <div class="col-md-3">
+                                <b>Product Name : {{Product_name}}</b>
+                            </div>
+                            <div class="col-md-3">
+                                <b>Unit Price : &#8377;{{Unit_price}}</b>
+                            </div>
+                            <div class="col-md-3">
+                                <md-button class="md-fab md-mini md-primary custbutton" ng-click="location_pop()">
+                                    <md-icon class="material-icons editlink">location_on</md-icon>
+                                    <md-tooltip>location add</md-tooltip>
+                                </md-button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="body">
+                        <div class="modal-body popup-body">
+                            <div class="row ">
+                                <div class="col-lg-12 col-sm-12">
+                                    <div class="row table-responsive">
+                                        <div class="col-md-12 col-lg-12 col-sm-12">
+                                            <fieldset data-ng-repeat="choice in choices">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <md-input-container class="md-block inputcontainer">
+                                                            <label>Adjusted Quantity</label>
+                                                            <input type="text"
+                                                                   ng-model="choice.grninwarddetails_qty"
+                                                                   name=""
+                                                                   ng-change="value_check()"
+                                                                   maxlength="4"
+                                                                   placeholder="Enter Asset Quantity" numbers-only>
+                                                        </md-input-container>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <md-input-container class="md-block inputcontainer">
+                                                            <label>Location:</label>
+                                                            <select type="text" style="width:200px;"
+                                                                    class="form-control" placeholder="location"
+                                                                    ng-model="choice.location_name">
+                                                                <option ng-repeat="choice in get_drop_location"
+                                                                        ng-value="choice.assetlocation_gid"
+                                                                        ng-click="locpop(em)">
+                                                                    {{choice.assetlocation_name}}
+                                                                </option>
+                                                            </select>
+                                                        </md-input-container>
+
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <md-button class="md-fab md-mini md-primary custbutton"
+                                                                   ng-show="$last"
+                                                                   ng-click="removeChoice()">
+                                                            <md-icon>close</md-icon>
+                                                            <md-tooltip>Remove</md-tooltip>
+                                                        </md-button>
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                </div>
+                                <md-button class="md-fab md-mini md-primary custbutton" ng-disabled="add_asset"
+                                           ng-click="addNewChoice()">
+                                    <md-icon>add</md-icon>
+                                    <md-tooltip>Create Asset</md-tooltip>
+                                </md-button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <md-button class="btn btn-info custbutton" ng-click="Sve()"
+                                       ng-disabled="enable_Qty">Submit
+                                <md-tooltip>Save</md-tooltip>
+                            </md-button>
+                            <md-button class="md-raised" data-dismiss="modal">Back
+                                <md-tooltip>close</md-tooltip>
+                            </md-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--                quantity popup ends-->
+        <!--        location popup-->
+        <div class="modal fade" id="locationpopup" tabindex="-1" role="dialog" data-backdrop=""
+             data-keyboard=""
+             aria-labelledby="exampleModalLabel" aria-hidden="">
+            <div class="modal-dialog modal-sm" role="document" style="height:auto;width:50%">
+                <div class="modal-content">
+                    <div class="modal-header popup-header">
+                        <h5 class="modal-title" id="exampleLabel">
+                            Asset Location Details
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </h5>
+                    </div>
+                    <div class="modal-body popup-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="col-md-3">
+                                    <label>Branch</label>
+                                    <select type="text" style="width:150px;" class="form-control" placeholder="Branch"
+                                            ng-model="as_brch">
+                                        <option ng-repeat="brnch in set_branch"
+                                                ng-value="brnch.branch_gid">
+                                            {{brnch.branch_name}}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block inputcontainer">
+                                        <label>Location Name</label>
+                                        <input ng-model="as_loc" ng-change="myfunc()"
+                                               type="text"/>
+                                    </md-input-container>
+                                </div>
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block inputcontainer">
+                                        <label>Floor</label>
+                                        <input ng-model="as_flr" ng-change="myfunc()"
+                                               type="text"/>
+                                    </md-input-container>
+                                </div>
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block inputcontainer">
+                                        <label>Remarks</label>
+                                        <input ng-model="as_rmks" ng-change="myfunc()"
+                                               type="text"/>
+                                    </md-input-container>
+                                </div>
+                            </div>
+                        </div>
+                        <!--                                    <div class="col-md-3">-->
+                        <!--                                        <md-input-container class="md-block inputcontainer">-->
+                        <!--                                            <label>Floor </label>-->
+                        <!--                                            <md-select type="text" maxlength="30" ng-model="location.floor">-->
+                        <!--                                                <md-option ng-repeat="item in location.drop_location">{{item.assetlocation_floor}}</md-option>-->
+                        <!--                                            </md-select>-->
+                        <!--                                        </md-input-container>-->
+                        <!--                                    </div>-->
+                        <!--                                    <div class="col-md-3">-->
+                        <!--                                        <md-input-container class="md-block inputcontainer">-->
+                        <!--                                            <label>Block </label>-->
+                        <!--                                            <md-select type="text" maxlength="30" ng-model="location.block">-->
+                        <!--                                                <md-option ng-repeat="item in location.drop_location">{{item.remarks}}</md-option>-->
+                        <!--                                            </md-select>-->
+                        <!--                                        </md-input-container>-->
+                        <!--                                    </div>-->
+                        <!--                                </div>-->
+                        <div class="row">
+                            <div class="col-xs-12 text-center">
+                                <md-button class="btn btn-info custbutton" ng-click="update(location)">Save
+                                    <md-tooltip>Save</md-tooltip>
+                                </md-button>
+                                <md-button class="md-raised" data-dismiss="modal">Back
+                                    <md-tooltip>close</md-tooltip>
+                                </md-button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--        location popup ends-->
+
+    </div>
+</div>
+
+
+{% endverbatim %}
+<style>
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
+</style>
+<script>
+var app = angular.module('dateapp', ['ngMaterial', 'ui.bootstrap', 'AppCommon', 'ngMessages'])
+    .config(function($httpProvider) {
+        $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+        $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+    });
+app.controller('datectrl', function($scope, newservice, $window, $mdToast, $interval, SerCommon, $element, $http, $mdDateLocale, $mdDialog, $filter, $rootScope) {
+    $mdDateLocale.formatDate = function(date) {
+        return $filter('date')(date, "dd-MMM-yyyy");
+    };
+
+    var detail = JSON.parse(sessionStorage.getItem('today'));
+    var td = detail.date;
+    var employgid = detail.employee_gid;
+    $scope.entity_gid = detail.entity_gid;
+    $scope.dbdate = convertdate(td);
+    $scope.orderByField = '';
+    $scope.itemsPerPage = 10;
+    $scope.currentPage = 1;
+    $scope.invoice_asset = [];
+    $scope.get_drop_data = [];
+    $scope.asset_invoice = [];
+    $scope.Details = "";
+    $scope.files = "";
+    $scope.imagebase = [];
+    $scope.final_amt = [];
+    $scope.enable_update = true;
+    $scope.enable_Qty = true;
+    $scope.drop_data = [];
+    $scope.drop_location = [];
+    $scope.get_drop_location = [];
+    $scope.get_floor = [];
+    $scope.set_branch = [];
+    $scope.quantity = [];
+    $scope.grninwarddetails_qty = '';
+    $scope.location_name = '';
+    $scope.add_asset = false;
+    $scope.enable_check = true;
+    $scope.Assetcrntpge = 1;
+    $scope.AssetmaxSize = 1;
+    $scope.Assetitmpge = 1;
+
+
+    $scope.loading = function() {
+        $mdDialog.show({
+            templateUrl: 'loaderSpinner',
+            parent: angular.element(document.body),
+            clickOutsideToClose: false
+        });
+    };
+    $scope.loading_popup = function() {
+        $mdDialog.show({
+            templateUrl: 'loaderSpinner',
+            parent: angular.element(document.getElementById('viewmodal')),
+            clickOutsideToClose: false
+        });
+    };
+
+    $scope.endloading = function() {
+        $mdDialog.hide();
+    };
+    $scope.viewdet = function(e) {
+        $scope.invoice_no = e.invoiceheader_gid;
+<!--        $scope.invoice_date = e.invoiceheader_invoicedate;-->
+<!--        $scope.supplier_name = e.supplier_name;-->
+<!--       $scope.quantity = e.grninwarddetails_qty;-->
+<!--        $scope.asset_code = e.product_name;-->
+<!--        $scope.invoice_value = e.status;-->
+        var model = modalshow('viewmodal');
+        var data = {
+            "Params": {
+                "FILTER": {
+                    "Invoice_Gid": $scope.invoice_no
+                },
+                "CLASSIFICATION": {
+                    "Entity_Gid": $scope.entity_gid,
+                }
+            }
+        };
+
+        debugger;
+        var get_insasset = newservice.invoice_filter(data)
+        get_insasset.then(function(result) {
+            debugger;
+            $scope.main = result.data.DATA;
+            $scope.invoice_asset_base = [];
+            $scope.invoice_asset_base = $scope.main;
+            $scope.invoice_asset = $scope.main;
+            for (i = 0; i < $scope.invoice_asset.length; i++) {
+                $scope.invoice_asset[i].drop_data = $scope.get_drop_data;
+                $scope.invoice_asset[i].cap_date = new Date();
+                $scope.maxDate = new Date($scope.invoice_asset[i].cap_date.getFullYear(), $scope.invoice_asset[i].cap_date.getMonth(), $scope.invoice_asset[i].cap_date.getDate() + 7);
+                $scope.minDate = new Date($scope.invoice_asset[i].cap_date.getFullYear(), $scope.invoice_asset[i].cap_date.getMonth() - 1, $scope.invoice_asset[i].cap_date.getDate());
+                $scope.invoice_asset[i].color = "green";
+            };
+            $scope.invoice_taxamt = $scope.invoice_asset[0].invoicedetails_taxamt;
+            $scope.invoice_totalamt = $scope.invoice_asset[0].invoicedetails_totalamt;
+            $scope.invoice_supplier = $scope.invoice_asset[0].supplier_name;
+            locpop();
+            $scope.Totalpages = Math.ceil($scope.asset_invoice.length / $scope.Assetitmpge);
+            for (var i = 0; i < $scope.invoice_asset.length; i++) {
+                $scope.invoice_asset[i].cap_date = convertdate(td);
+            }
+        }).finally($scope.endloading);
+
+        var get_drop = newservice.drop_data()
+        get_drop.then(function(result) {
+            debugger;
+            $scope.main = result.data.DATA;
+            $scope.get_drop_data = $scope.main;
+
+        });
+
+        $scope.loadUsers = function() {
+            return $timeout(function() {
+
+                $scope.users = $scope.get_drop_data;
+
+            }, 650);
+        };
+    }
+
+    loaddata();
+
+    function loaddata() {
+        var data = {
+            "Params": {
+                "FILTER": {
+                    "vk": ""
+                },
+                "CLASSIFICATION": {
+                    "Entity_Gid": $scope.entity_gid,
+                }
+            }
+        };
+
+        debugger;
+        var get_asset = newservice.asset_detail(data)
+        get_asset.then(function(result) {
+            $scope.loading();
+            $scope.main = result.data.DATA;
+            $scope.asset_invoice = $scope.main;
+            $scope.pageLength = $scope.asset_invoice.length;
+            $scope.Totalpages = Math.ceil($scope.asset_invoice.length / $scope.itemsPerPage);
+            $scope.pageLength = $scope.asset_invoice.length;
+            for (i = 0; i < $scope.asset_invoice.length; i++) {
+                $scope.po_no_split = $scope.asset_invoice[i].po_nos;
+                    $scope.po_no_split =$scope.po_no_split.split(',')
+                        for (j = 0; j < $scope.po_no_split.length; j++) {
+                            $scope.po_no_split[j] = $scope.po_no_split[j]+","+"\n";
+                        }
+                    $scope.multiple_pos = $scope.po_no_split.join('');
+                    $scope.asset_invoice[i].po_nos = $scope.multiple_pos;
+            }
+        }).finally($scope.endloading);
+
+    }
+        $scope.querySearch = gotoexe;
+
+        function gotoexe(query) {
+            var result = $filter('filter')($scope.get_drop_location, {
+                'assetlocation_name': query
+            });
+            return result;
+        }
+            $scope.querySearchs = gotocat;
+        function gotocat(query) {
+            var result = $filter('filter')($scope.get_drop_data, {
+                'assetcat_gid': query
+            });
+            return result;
+        }
+
+    $scope.selectEntity = function() {
+        $scope.sum = 0;
+        for (var i = 0; i < $scope.invoice_asset.length; i++) {
+            if ($scope.invoice_asset[i].isChecked) {
+                $scope.enable_update = false;
+                return;
+            }
+        }
+    };
+
+    function loadexcl(excl) {
+        $scope.loading();
+        var overalldtl = newservice.excelgen(excl);
+        overalldtl.then(function(res) {
+            var hosmr = [];
+<!--            $scope.hosmr = res.data.MESSAGE;-->
+            alert(res.data);
+            $scope.hosmr = res.final;
+        }).finally($scope.endloading);
+    }
+
+    $scope.selectEntity = function() {
+        for (var i = 0; i < $scope.invoice_asset.length; i++) {
+            if ($scope.invoice_asset[i].isChecked == true) {
+                $scope.enable_update = false;
+                return
+            }
+        }
+    };
+    $scope.selectall = function() {
+        if ($scope.checkall == true) {
+            for (var i = 0; i < $scope.invoice_asset.length; i++) {
+                $scope.invoice_asset[i].isChecked = true;
+                $scope.selectcheck(i);
+            }
+        } else if ($scope.checkall == false) {
+            for (var i = 0; i < $scope.invoice_asset.length; i++) {
+                $scope.invoice_asset[i].isChecked = false;
+            }
+            $scope.enable_update = true;
+        }
+    };
+
+    $scope.selectcheck = function(id) {
+        img_index = [];
+        for (var i = 0; i < $scope.invoice_asset.length; i++) {
+            if ($scope.invoice_asset[i].isChecked == true) {
+                getSelectedText(id);
+                withtaxaction(id);
+                getbranch(id);
+                return false;
+            }
+
+            else if ($scope.invoice_asset[i].isChecked == false) {
+               $scope.enable_update = true;
+               $scope.checkall = false;
+            }
+        }
+    };
+
+    function check_radio(i) {
+        if ($scope.option_radio == "Tax") {
+            $scope.invoice_tax = $scope.invoice_asset[i].invoicedetails_taxamt / $scope.invoice_asset[i].grninwarddetails_qty;
+            $scope.finalamt = $scope.invoice_tax + $scope.invoice_asset[i].invoicedetails_unitprice;
+            return $scope.finalamt;
+        } else if ($scope.option_radio == "Without_Tax") {
+            $scope.finalamt = $scope.invoice_asset[i].invoicedetails_unitprice;
+            return $scope.finalamt;
+        } else if ($scope.option_radio == "OtherTax") {
+            alert("Other Expence")
+        }
+    };
+
+    function withtaxaction(i) {
+        if ($scope.option_radio == "Tax") {
+            $scope.finalamt = $scope.invoice_asset[i].invoicedetails_taxamt + $scope.invoice_asset[i].invoicedetails_totalamt;
+            return $scope.finalamt;
+        } else if ($scope.option_radio == "Without_Tax") {
+            $scope.finalamt = $scope.invoice_asset[i].invoicedetails_totalamt;
+            return $scope.finalamt;
+        }
+    };
+
+    function getbranch(f) {
+        if ($scope.location_name == undefined) {
+            alert("Please select location field");
+            $scope.invoice_asset[f].isChecked = false;
+            $scope.checkall = false;
+            $scope.enable_update = true;
+            return;
+        }
+    }
+
+    function getSelectedText(e) {
+        var selt = $scope.invoice_asset[e].selectedItem;
+        if (selt == undefined) {
+            alert("Please select an Catagory");
+            $scope.invoice_asset[e].isChecked = false;
+            $scope.checkall = false;
+            return;
+        } else {
+            valid_qty(e)
+        }
+    };
+    $scope.strsubstring = "";
+    function baseimg(e, name) {
+        debugger;
+        var file_img = document.getElementById('file' + e).files[0];
+                if (file_img == undefined && $scope.imagebase[e] != name) {
+                    $scope.imagebase64_data={
+                                 "name" :"07",
+                                 "Base64" :"",
+                                };
+                    $scope.imagebase.push($scope.imfileagebase64_data);
+                    $scope.enable_update = false;
+        <!--            alert("Fill the File field!.");-->
+        <!--            $scope.invoice_asset[e].isChecked = false;-->
+                     return false;
+                }
+
+                if (file_img !== undefined) {
+                var filename = file_img.name;
+                var index = filename.lastIndexOf(".");
+                $scope.strsubstring = filename.substring(index, filename.length);
+                    var img = new FormData();
+                    img.append('file', file_img);
+                    img.append('name', name);
+                    imageupload(img);
+                    $scope.enable_update = false;
+                    return false;
+                }
+    };
+
+     function valid_qty(e) {
+         if($scope.multiple_qty.length != 0){
+            for (i = 0; i < $scope.invoice_asset.length; i++) {
+               if($scope.multiple_qty[i].invoicedetails_gid != $scope.invoice_asset[e].invoicedetails_gid){
+                    $scope.multiple_qty.push("");
+                   if ($scope.selectedloc) {
+                     $scope.location_name = $scope.selectedloc.assetlocation_gid;
+                      baseimg(e, $scope.invoice_asset[e].product_name);
+                      return false;
+                        }
+                    else {
+                        alert("Please select an Location");
+                        $scope.invoice_asset[e].isChecked = false;
+                        $scope.checkall = false;
+                        return;
+                   }
+                }
+                else if($scope.multiple_qty[i].invoicedetails_gid == $scope.invoice_asset[e].invoicedetails_gid) {
+                    baseimg(e, $scope.invoice_asset[e].product_name);
+                      return false;
+                }
+            }
+         }
+         else if($scope.multiple_qty.length == 0){
+            if ($scope.selectedloc) {
+                     $scope.location_name = $scope.selectedloc.assetlocation_gid;
+                     baseimg(e, $scope.invoice_asset[e].product_name);
+                     return false;
+            }
+            else {
+                alert("Please select an Location");
+                $scope.invoice_asset[e].isChecked = false;
+                $scope.checkall = false;
+                return;
+            }
+         }
+     }
+
+     $scope.choices=[];
+     $scope.multiple_qty=[];
+     $scope.qtypop = function(emp,e) {
+     $scope.total_qty=emp.invoicedetail_qty;
+     $scope.Product_name = emp.product_name;
+     $scope.invoicedetails_gid = emp.invoicedetails_gid;
+     $scope.Unit_price = emp.invoicedetails_unitprice;
+     $scope.choices = [{invoicedetails_gid:$scope.invoicedetails_gid,grninwarddetails_qty: '',location_name: ''}];
+            if($scope.multiple_qty.length == 0){
+                   $scope.multiple_qty=[{invoicedetails_gid:$scope.invoicedetails_gid,source:$scope.choices}];
+                }
+            else if($scope.multiple_qty.length != 0){
+                var qty_len = $scope.multiple_qty.length -1;
+                   if($scope.multiple_qty[qty_len].invoicedetails_gid != $scope.invoicedetails_gid){
+                        $scope.multiple_qty.push({invoicedetails_gid:$scope.invoicedetails_gid,source:$scope.choices});
+                    }
+                }
+         $scope.model_qty = modalshow('quantitymodal');
+         $scope.invoice_asset[e].color = "blue";
+      }
+
+       $scope.grninwarddetails_qty = '';
+       $scope.location_name = '';
+       $scope.addNewChoice = function() {
+       debugger;
+        var sum =parseInt(0);
+        for (i = 0; i < $scope.choices.length; i++) {
+            sum = parseInt(sum) + parseInt($scope.choices[i].grninwarddetails_qty);
+        }
+            if (sum > $scope.total_qty){
+                $scope.add_asset = true;
+                alert("Asset Quantity is not Matched");
+            }
+            else if(sum < $scope.total_qty){
+                var newItemNo = $scope.choices.length+1;
+                $scope.choices.push({'invoicedetails_gid':$scope.invoicedetails_gid,'grninwarddetails_qty':'','location_name':''});
+            }
+            else if(sum == $scope.total_qty){
+                $scope.enable_Qty = false;
+            }
+            else {
+               alert("Asset Quantity is Empty");
+            }
+    };
+
+    $scope.removeChoice = function() {
+        var lastItem = $scope.choices.length-1;
+        $scope.choices.splice(lastItem);
+        $scope.add_asset = false;
+    };
+    $scope.value_check = function() {
+        var sum =parseInt(0);
+        for (i = 0; i < $scope.choices.length; i++) {
+            sum = parseInt(sum) + parseInt($scope.choices[i].grninwarddetails_qty);
+        }
+        if(sum == $scope.total_qty){
+                $scope.add_asset = true;
+<!--            if($scope.split_date != undefined){-->
+<!--               $scope.enable_update = false;-->
+<!--            }-->
+                $scope.enable_Qty = false;
+            }
+        else if(sum > $scope.total_qty){
+                $scope.add_asset = true;
+                $scope.enable_Qty = true;
+                alert("Asset Value is not Matched");
+                var len = $scope.choices.length - 1;
+                $scope.choices[len].grninwarddetails_qty ="";
+            }
+        else {
+              $scope.add_asset = false;
+            }
+    };
+
+    $scope.Sve = function() {
+        var sum =parseInt(0);
+      for (i = 0; i < $scope.choices.length; i++) {
+            sum = parseInt(sum) + parseInt($scope.choices[i].grninwarddetails_qty);
+            }
+        if(sum == $scope.total_qty){
+             modalhide('quantitymodal');
+        }
+        else if(sum != $scope.total_qty){
+                $scope.enable_update = true;
+        }
+      }
+
+    $scope.no_split_qty = function(i,capdate){
+        var datas_asset = {
+                "Invoice_Gid": ($scope.invoice_asset[i].invoiceheader_gid).toString(),
+                "Invoice_Detail_Gid": ($scope.invoice_asset[i].invoicedetails_gid).toString(),
+                "Supplier_Gid": ($scope.invoice_asset[i].supplier_gid).toString(),
+                "Product_Gid": ($scope.invoice_asset[i].product_gid).toString(),
+                "Asset_Asset_SubCat_Gid": ($scope.invoice_asset[i].selectedItem.assetcat_gid).toString(),
+                "Asset_Qty": ($scope.invoice_asset[i].invoicedetail_qty).toString(),
+                "Unit_Price": ($scope.invoice_asset[i].invoicedetails_unitprice).toString(),
+                "Asset_Value": (check_radio(i)).toString(),
+                "Location_Gid": ($scope.location_name).toString(),
+                "CP_Date": capdate,
+            };
+        $scope.asset.push(datas_asset);
+    }
+
+    $scope.Save = function(entity) {
+        $scope.enable_update = true;
+        debugger;
+        $scope.asset = [];
+        $scope.file = [];
+        for (i = 0; i < $scope.invoice_asset.length; i++) {
+            if ($scope.invoice_asset[i].isChecked) {
+                var d = new Date($scope.invoice_asset[i].cap_date);
+                var capdate = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+                    if( $scope.multiple_qty.length == 0){
+                        $scope.no_split_qty(i,capdate);
+                    }
+                    else if( $scope.multiple_qty.length != 0){
+                        if($scope.multiple_qty[i].invoicedetails_gid == $scope.invoice_asset[i].invoicedetails_gid ){
+                            $scope.source_qty = $scope.multiple_qty[i].source;
+                            if($scope.source_qty[i].invoicedetails_gid == $scope.invoice_asset[i].invoicedetails_gid){
+                                for (j = 0; j < $scope.source_qty.length; j++) {
+                                        var datas_asset = {
+                                            "Invoice_Gid": ($scope.invoice_asset[i].invoiceheader_gid).toString(),
+                                            "Invoice_Detail_Gid": ($scope.invoice_asset[i].invoicedetails_gid).toString(),
+                                            "Supplier_Gid": ($scope.invoice_asset[i].supplier_gid).toString(),
+                                            "Product_Gid": ($scope.invoice_asset[i].product_gid).toString(),
+                                            "Asset_Asset_SubCat_Gid": ($scope.invoice_asset[i].selectedItem.assetcat_gid).toString(),
+                                            "Asset_Qty": ($scope.source_qty[j].grninwarddetails_qty).toString(),
+                                            "Unit_Price": ($scope.invoice_asset[i].invoicedetails_unitprice).toString(),
+                                            "Asset_Value": (check_radio(i)).toString(),
+                                            "Location_Gid": ($scope.source_qty[j].location_name).toString(),
+                                            "CP_Date": capdate,
+                                        };
+                                        $scope.asset.push(datas_asset);
+                                }
+                            }
+                            else if($scope.choices[i].invoicedetails_gid != $scope.invoice_asset[i].invoicedetails_gid){
+                                        $scope.no_split_qty(i,capdate);
+                            }
+                        }
+                        else if( $scope.multiple_qty[i] == ""){
+                            $scope.no_split_qty(i,capdate);
+                        }
+                    }
+                }
+            }
+
+        angular.forEach($scope.imagebase, function(item2) {
+            angular.forEach($scope.invoice_asset, function(item1) {
+                var invoiceid = item2.name;
+                if (item1.product_name == invoiceid) {
+                    var final_baseimg = item2.Base64;
+                    var ref_table_gid = item1.invoicedetails_gid;
+                    var file_name = item1.product_name;
+                        $scope.img_files = {
+                        "Ref_Table_Gid": (ref_table_gid).toString(),
+                        "File_Name": file_name,
+                        "File_Extension": $scope.strsubstring,
+                        "File_Base64data": final_baseimg,
+                    };
+                }
+                else if (item1.product_name != invoiceid) {
+                        $scope.img_files =[];
+                }
+            });
+            $scope.file.push($scope.img_files);
+        });
+
+        var details = {
+            "ASSET": $scope.asset
+
+
+        };
+        var save_data = {
+            "Params": {
+                "DETAILS": details,
+                "File": $scope.file,
+                "CHANGE": {},
+                "STATUS": {},
+                "CLASSIFICATION": {
+                    "Entity_Gid": $scope.entity_gid
+                }
+            }
+        };
+        save_file(save_data);
+    }
+
+    function save_file(save_data) {
+        var asset_save = newservice.assets_save(save_data, employgid);
+        $scope.loading_popup();
+        asset_save.then(function(res) {
+            $scope.set_update = res.data.MESSAGE;
+            alert($scope.set_update);
+            $window.location.href = "fa_assetadd";
+        }).finally($scope.endloading);
+    }
+
+
+    function imageupload(img) {
+        var img_upld = newservice.imageup(img);
+        img_upld.then(function(res) {
+            $scope.imagebase64 = res.data;
+                if ($scope.imagebase.indexOf($scope.imagebase64) == -1) {
+                    var name_file = $scope.imagebase64.split('+')[0];
+                    var name_len = name_file.length;
+                    $scope.imagebase64_data={
+                         "name" :name_file,
+                         "Base64" :$scope.imagebase64.substring(name_len+1,),
+                        };
+                    $scope.imagebase.push($scope.imagebase64_data);
+                    $mdToast.show(SerCommon.new_toast('success', "SUCCESS"));
+                    $interval(callAtInterval, 1000);
+                } else if ($scope.imagebase.indexOf($scope.imagebase64) == 0) {
+                alert("already inserted")
+            } else if ($scope.imagebase.indexOf($scope.imagebase64) == 1) {
+
+            }
+        })
+    }
+    locpop();
+
+    function locpop() {
+
+        var branch = {
+            "Params": {
+                "FILTER": {
+                    "Reftable_Gid": "1",
+                },
+                "CLASSIFICATION": {
+                    "Entity_Gid": $scope.entity_gid
+                }
+            }
+        }
+
+        var get_drops = newservice.drop_locat(branch);
+        get_drops.then(function(result) {
+            debugger;
+            $scope.maintble = result.data.DATA;
+            $scope.get_drop_location = $scope.maintble;
+
+        }).finally($scope.endloading);
+
+        var get_brn = newservice.drop_brch();
+        get_brn.then(function(result) {
+            debugger;
+
+            $scope.maintble = result.data.DATA;
+            $scope.set_branch = $scope.maintble;
+
+        }).finally($scope.endloading);
+
+    }
+
+
+    $scope.location_pop = function(location) {
+        var model = modalshow('locationpopup');
+    }
+
+
+
+    $scope.update = function(location) {
+        var floor = {
+            "Params": {
+                "DETAILS": {
+                    "Ref_Gid": "67",
+                    "RefTable_Gid": $scope.as_brch,
+                    "Location_Name": $scope.as_loc,
+                    "Location_Floor": $scope.as_flr,
+                    "Remarks": $scope.as_rmks,
+
+
+                },
+                "CLASSIFICATION": {
+                    "Entity_Gid": $scope.entity_gid
+                }
+            }
+        }
+        save_location(floor);
+    };
+
+    function save_location(floor) {
+        var floor_data = newservice.drop_floor(floor, employgid);
+        floor_data.then(function(result) {
+            debugger;
+            var asmr = [];
+            alert(result.data.MESSAGE);
+            $scope.asmr = result.final;
+        }).finally($scope.endloading);
+    }
+
+});
+
+app.service('newservice', function($http) {
+    this.asset_detail = function(data) {
+        var response = $http.post(Appname + "/asset_details/", {
+            params: {
+                "Sub_Type": "SUMMARY",
+                "Type": "INVOICE_DETAILS",
+                "Group": "FA_INVOICE_DETAILS",
+                "json": data,
+            }
+        });
+        return response;
+    }
+
+    this.invoice_filter = function(data) {
+        var response = $http.post(Appname + "/asset_details/", {
+            params: {
+                "Sub_Type": "DETAILS",
+                "Type": "INVOICE_DETAILS",
+                "Group": "FA_INVOICE_DETAILS",
+                "json": data,
+            }
+        });
+        return response;
+    }
+
+    this.drop_data = function() {
+        var response = $http.post(Appname + "/drop_data/", {});
+        return response;
+    }
+
+    this.assets_save = function(save_data, employgid) {
+        var respons = $http.post(Appname + "/save_asset/", {
+            params: {
+                "Sub_Type": "TEMP",
+                "Action": "INSERT",
+                "Type": "ASSET_MAKER",
+                "Group": "FA_ASSET_MAKE",
+                "Employee_Gid": employgid,
+                "json": save_data,
+            }
+        });
+        return respons;
+    }
+     this.assets_sve = function(sve_data,employgid) {
+        var respons = $http.post(Appname + "/save_asset/", {
+            params: {
+                "Sub_Type": "TEMP",
+                "Action": "INSERT",
+                "Type": "ASSET_MAKER",
+                "Group": "FA_ASSET_MAKE",
+                "Employee_Gid": employgid,
+                "json": sve_data,
+            }
+        });
+        return respons;
+    }
+    this.imageup = function(custid) {
+        var respons = $http.post(Appname + "/imageconvert/",
+            custid, {
+                transformRequest: angular.identity,
+                headers: {
+                    'Content-Type': undefined
+                }
+            }
+        );
+        return respons;
+    }
+
+    this.drop_locat = function(branch, employgid) {
+        var respons = $http.post(Appname + "/branch_details/", {
+            params: {
+                "Group": "FA_LOCATION_GET",
+                "Type": "FA_LOCATION",
+                "Sub_Type": "DDL",
+                "json": branch,
+            }
+        });
+        return respons;
+
+
+    }
+
+    this.drop_floor = function(floor, employgid) {
+        var respons = $http.post(Appname + "/save_location/", {
+            params: {
+                "Group": "FA_LOCATION_SET",
+                "Type": "FA_LOCATION",
+                "Sub_Type": "FA_LOCATION",
+                "Action": "INSERT",
+                "Employee_Gid": employgid,
+                "json": floor,
+            }
+        });
+        return respons;
+
+    }
+    this.drop_brch = function() {
+        var response = $http.post(Appname + "/get_branch/", {});
+        return response;
+    }
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+{% endblock %}

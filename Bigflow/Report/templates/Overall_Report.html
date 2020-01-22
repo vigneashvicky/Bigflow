@@ -1,0 +1,401 @@
+{% extends 'Shared/mainLayout.html' %}
+{% load static from staticfiles %}
+{% block title %} Overall Report{% endblock %}
+{% block content %}
+{% csrf_token %}
+{% verbatim %}
+<div class="maincontent">
+    <div class="container container1" ng-app="Appemployee" ng-controller="Ctrlemployee">
+        <div class="row">
+            <div class="row-header col-lg-12 col-sm-12">
+                <div class="col-lg-10 col-sm-10">
+                    <h4><strong>Overall Report</strong></h4>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <form name="myform">
+                    <div class="col-md-3">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Module</label>
+                            <md-select ng-change="modclck(downststs)" ng-model="downststs" required>
+                                <md-optgroup label="Module">
+                                    <md-option ng-repeat="s in fullmodule"
+                                               ng-value="s.module"> {{s.module}}
+                                    </md-option>
+                                </md-optgroup>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-3">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Type</label>
+                            <md-select ng-model="downsts" required>
+                                <md-optgroup label="Type">
+                                    <md-option ng-repeat="s in fulltype"
+                                               ng-value="s.type"> {{s.type}}
+                                    </md-option>
+                                </md-optgroup>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+                </form>
+                <div class="col-md-2" ng-show="(myform.$valid)">
+                    <md-button class="md-fab md-mini md-primary custbutton" ng-click="downloadDetail($event)">
+                        <md-icon>cloud_download</md-icon>
+                        <md-tooltip>Download</md-tooltip>
+                    </md-button>
+                </div>
+            </div>
+        </div>
+
+        <!--outstanding filter-->
+        <div style="visibility: hidden">
+            <div class="md-dialog-container" id="myDialog">
+                <md-dialog layout-padding>
+                    <md-dialog-content>
+                        <h3>Search Details</h3>
+                        <md-input-container class="md-block inputcontainer" ng-show="shwdate">
+                            <label>Date</label>
+                            <md-datepicker md-hide-icons="calendar" md-open-on-focus
+                                           ng-model="from_date"></md-datepicker>
+                        </md-input-container>
+                        <div layout="row" ng-show="shwexecutive">
+                            <md-autocomplete
+                                    md-clear-button="true"
+                                    md-floating-label="Executive Name"
+                                    md-item-text="item.employee_name"
+                                    md-items="item in getEmployee(searchTex)"
+                                    md-min-length=0
+                                    md-no-cache="false"
+                                    md-search-text="searchTex"
+                                    md-selected-item="selectedItem">
+                                <md-item-template>
+                                    <span md-highlight-text="searchTex"> {{item.employee_name}} </span>
+                                </md-item-template>
+                                <md-not-found>
+                                    No Customer matching "{{searchTex}}" were found.
+                                </md-not-found>
+                            </md-autocomplete>
+                        </div>
+                        <div layout="row" ng-show="shwcourier">
+                            <md-autocomplete
+                                    md-clear-button="true"
+                                    md-floating-label="Courier Name"
+                                    md-item-text="item.courier_name"
+                                    md-items="item in getCourier(searchText)"
+                                    md-min-length=0
+                                    md-no-cache="false"
+                                    md-search-text="searchText"
+                                    md-selected-item="selectedcourier">
+                                <md-item-template>
+                                    <span md-highlight-text="searchText"> {{item.courier_name}} </span>
+                                </md-item-template>
+                                <md-not-found>
+                                    No Courier matching "{{searchText}}" were found.
+                                </md-not-found>
+                            </md-autocomplete>
+                        </div>
+                    </md-dialog-content>
+                    <md-dialog-actions layout="row">
+                        <md-button ng-click="cancel()">
+                            cancel
+                        </md-button>
+                        <md-button md-autofocus ng-show="shwdownload" ng-click="downloadOutstanding()">
+                            Download
+                        </md-button>
+                        <div title="Open Po Details" ng-show="shwexcelbtn" excel-export export-data="exportData"
+                             file-name="{{fileName}}"></div>
+                    </md-dialog-actions>
+                </md-dialog>
+            </div>
+        </div>
+    </div>
+</div>
+{% endverbatim %}
+<script >
+    var myApp = angular.module('Appemployee', ['ngMaterial', 'ui.bootstrap', 'AppCommon'])
+        .config(function($httpProvider) {
+            $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+            $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+        });
+
+myApp.run(function($mdDateLocale, $filter) {
+    $mdDateLocale.formatDate = function(date) {
+        return $filter('date')(date, "dd-MMM-yyyy");
+    };
+})
+
+myApp.controller('Ctrlemployee', ['$scope', 'overallreportServ', '$mdDialog', '$rootScope', '$window', '$filter',
+    function($scope, overallreportServ, $mdDialog, $rootScope, $window, $filter) {
+
+        var detail = JSON.parse(sessionStorage.getItem('today'));
+        $scope.employgid = detail.employee_gid;
+        $scope.entity_gid = detail.entity_gid;
+        $scope.fullmodule = [];
+        $scope.fulltype = [];
+        $scope.shwdownload = true;
+        $scope.shwexcelbtn = false;
+        $scope.from_date = new Date();
+
+        $scope.loading = function() {
+            $mdDialog.show({
+                templateUrl: 'loaderSpinner',
+                parent: angular.element(document.body),
+                clickOutsideToClose: false
+            });
+        };
+
+        $scope.endloading = function() {
+            $mdDialog.hide();
+        };
+
+        $scope.fullmodule = [{
+            module: "Sale"
+        }, {
+            module: "Dispatch"
+        }, {
+            module: "Sale Report"
+        }, {
+            module: "Purchase"
+        }, {
+            module: "Stock"
+        }]
+
+        $scope.modclck = function(e) {
+            if (e == "Sale") {
+                $scope.fulltype = [{
+                    type: "Outstanding"
+                }]
+            } else if (e == "Dispatch") {
+                $scope.fulltype = [{
+                    type: "Consignment-Sale"
+                }]
+            } else if (e == "Purchase") {
+                $scope.fulltype = [{
+                    type: "Open Po"
+                }]
+            } else if (e == "Stock") {
+                $scope.fulltype = [{
+                    type: "Stock Summary"
+                }]
+            } else {
+                $scope.fulltype = [{
+                    type: "Sales-report"
+                }]
+            }
+        }
+
+        $scope.downloadOutstanding = function() {
+        debugger;
+            if ($scope.downsts == "Outstanding") {
+                var employee_gid = 0,
+                    employee_name = "";
+                if ($scope.selectedItem) {
+                    employee_gid = $scope.selectedItem.employee_gid;
+                    employee_name = $scope.selectedItem.employee_name;
+                }
+                var url = "outstandingExcel?employee_gid=" + employee_gid + "&employee_name=" + employee_name;
+                window.open(url, "_blank");
+            } else if ($scope.downsts == "Consignment-Sale") {
+                var couriergid = $scope.selectedcourier.courier_gid;
+                $window.open("http://174.138.120.196:8089/pentaho/content/reporting/execute/steel-wheels/reports/consign.xls?solution=steel-wheels&path=/reports&name=consign.prpt&locale=en_US&courier_gid=" + couriergid + "&output-target=table/excel;page-mode=flow&accepted-page=-1&showParameters=true&renderMode=REPORT&htmlProportionalWidth=false&userid=joe&password=password")
+            } else if ($scope.downsts == "Open Po") {
+                load_poopen()
+            } else if ($scope.downsts == "Stock Summary") {
+                load_stocksumry()
+            } else {
+                $window.open("http://174.138.120.196:8089/pentaho/content/reporting/execute/steel-wheels/reports/salesreport.xls?solution=steel-wheels&path=/reports&name=salesreport.prpt&locale=en_US&output-target=table/excel;page-mode=flow&accepted-page=-1&showParameters=true&renderMode=REPORT&htmlProportionalWidth=false&userid=joe&password=password")
+            }
+        }
+        load_openpo()
+
+        $scope.downloadDetail = function(ev) {
+            if ($scope.downsts == "Outstanding") {
+                $scope.shwexecutive = true;
+                $scope.shwdate = false;
+                $scope.shwdownload = true;
+                $scope.shwexcelbtn = false;
+            } else if ($scope.downsts == "Consignment-Sale") {
+                $scope.shwexecutive = false;
+                $scope.shwdownload = true;
+                $scope.shwdate = false;
+                $scope.shwexcelbtn = false;
+                $scope.shwcourier = true;
+            } else if ($scope.downsts == "Open Po") {
+                $scope.shwdate = false;
+                $scope.shwdownload = false;
+                $scope.shwexcelbtn = true;
+            } else if ($scope.downsts == "Sales-report") {
+                $scope.shwdownload = true;
+                $scope.shwdate = false;
+                $scope.shwexcelbtn = false;
+            } else if ($scope.downsts == "Stock Summary") {
+                $scope.shwdate = true;
+                $scope.shwdownload = true;
+                $scope.shwexcelbtn = false;
+            }
+            loadOutstandingDetails(ev);
+        };
+
+        $scope.getEmployee = function(query) {
+            te = $filter('filter')($scope.executiveList, {
+                'employee_name': query
+            });
+            return te;
+        }
+
+        $scope.getCourier = function(query) {
+            te = $filter('filter')($scope.courier_dtl, {
+                'courier_name': query
+            });
+            return te;
+        }
+
+        function loadOutstandingDetails(ev) {
+            $scope.executiveList = [];
+            var details, jsondata;
+            details = {
+                "Table_name": "gal_mst_temployee",
+                "Column_1": "employee_gid,employee_name",
+                "Column_2": "",
+                "Where_Common": "employee",
+                "Where_Primary": "dept_gid",
+                "Primary_Value": "2",
+                "Order_by": "name"
+            }
+
+            jsondata = {
+                Action: "",
+                Entity_Gid: $scope.entity,
+                data: details
+            }
+
+            var getemployee = overallreportServ.getemployee(jsondata)
+            getemployee.then(function(result) {
+                $scope.executiveList = result.data.DATA;
+            }, function(err) {
+                alert('No data!.');
+            }).finally($scope.showOutstandingDialog(ev));
+        }
+
+        $scope.showOutstandingDialog = function(ev) {
+            $mdDialog.show({
+                contentElement: '#myDialog',
+                parent: angular.element(document.body),
+                targetEvent: ev,
+                clickOutsideToClose: false
+            });
+        };
+
+        var courier = overallreportServ.getcourier_dtl()
+        courier.then(function(result) {
+                $scope.courier_dtl = result.data
+            }),
+            function() {
+                alert('no data');
+            };
+
+        $scope.cancel = function() {
+            $mdDialog.cancel();
+        };
+        $scope.fileName = "Open PO Details";
+        $scope.exportData = [];
+        $scope.exportData.push(["S.No", "PO Number", "PO Date", "Supplier Name", "Product Name", "Ordered Quantity", "Received Quantity", "Remaining Quantity"]);
+
+        function load_openpo() {
+            var data = {
+                Supplier_Gid: '',
+                Po_No: '',
+                Product_Gid: '',
+                From_Date: '',
+                To_Date: ''
+            };
+
+            var data_int = {
+                Type: 'SUMMARY',
+                SubType: 'OPENPO',
+                darta: data
+            };
+            //get_openpo details
+            $scope.loading();
+            var Openpo = overallreportServ.get_pendingdata(data_int);
+            Openpo.then(function(result) {
+                    $scope.Openpo_data = JSON.parse(result.data)
+                    for (i = 0; i < $scope.Openpo_data.length; i++) {
+                        if ($scope.Openpo_data[i].poheader_no != "") {
+                            $scope.Openpo_data[i].sno = i + 1;
+                        }
+                    }
+                    $scope.maintable = $scope.Openpo_data
+                    angular.forEach($scope.maintable, function(value, key) {
+                        $scope.exportData.push([value.sno, value.poheader_no, value.poheader_date, value.supplier_name, value.product_name, value.total_qty, value.allreceive_qty, value.rem_qty,
+                            ""
+                        ]);
+                    });
+                    $scope.endloading();
+                },
+                function(err) {
+                    alert('No data!.');
+                }).finally();
+        }
+
+        //Stock Summary
+        function load_stocksumry() {
+            var data = {
+                "Params": {
+                    "FILTER": {
+                        "date": $filter('date')($scope.from_date, "yyyy-MM-dd")
+                    }
+                }
+            }
+
+            var data_int = {
+                "Cur_date": $filter('date')($scope.from_date, "yyyy-MM-dd"),
+                "Group": "STOCK_SUMMARY",
+                "Type": "DateWise_CbStock",
+                "Sub_Type": "",
+                "From_Date": "",
+                "To_Date": "",
+                "Product_Gid": 0,
+                "Supplier_Gid": 0,
+                "Entity_Gid": $scope.entity_gid,
+                "data": data
+            }
+
+            var url = "stock_sumry_rpt?Main=" + JSON.stringify(data_int);
+            window.open(url, "_blank");
+        }
+    }
+
+]);
+
+myApp.service("overallreportServ", function($http) {
+    this.getoutstndng = function(data) {
+        var response = $http.get(Appname + "/chk/", data);
+        return response;
+    }
+    this.getemployee = function(jsonData) {
+        var response = $http.post(Appname + "/prodget/",
+            jsonData
+        );
+        return response;
+    }
+    //geting the pending_po details
+    this.get_pendingdata = function(data_int) {
+        var responsee = $http.post(Appname + "/pending_posummary/", data_int);
+        return responsee;
+    }
+    this.getcourier_dtl = function() {
+        var response = $http.post(Appname + "/Courier_dtl/", {
+            params: {
+                "courier_gid": 0,
+                "courier_name": ''
+            }
+        });
+        return response;
+    }
+});
+</script>
+{% endblock %}

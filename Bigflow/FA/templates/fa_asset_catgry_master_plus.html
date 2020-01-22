@@ -1,0 +1,276 @@
+{% extends 'Shared/mainLayout.html' %}
+{% load static from staticfiles %}
+{% block title %} Asset Category {% endblock %}
+{% csrf_token %}
+{% block content %}
+{% verbatim %}
+<div class="maincontent">
+    <div class="container container1" ng-app="dateapp" ng-cloak ng-controller="datectrl">
+        <div class="row">
+            <div class="row-header col-lg-12 col-sm-12">
+                <h4>Asset Category </h4>
+            </div>
+        </div>
+        <div class="row" class="col-md-12">
+            <div class="row">
+                <div class="col-md-12">
+<!--                    <div class="col-md-3">-->
+<!--                        <md-input-container class="md-block inputcontainer">-->
+<!--                            <label>Sub Category </label>-->
+<!--                            <md-select md-container-class="popup_select"-->
+<!--                                       ng-model="Assetcategory.subcatgry">-->
+<!--                                <md-option ng-repeat="d in subcategorydetails"-->
+<!--                                           ng-value="d.subcategory_categorygid ">{{d.subcategory_name }}-->
+<!--                                </md-option>-->
+<!--                            </md-select>-->
+<!--                        </md-input-container>-->
+<!--                    </div>-->
+                    <div class="col-md-3" style="margin-top:12px">
+                        <md-autocomplete
+                                md-clear-button="true"
+                                md-input-maxlength=126
+                                md-item-text="item.subcategory_name"
+                                md-items="item in querySearch(searchTe)"
+                                md-min-length=0
+                                md-no-cache="true"
+                                md-search-text="searchTe"
+                                md-selected-item="selectedcat"
+                                md-selected-item-change="ACselectchange(item)"
+                                placeholder="Sub Category">
+                            <md-item-template>
+                                <span md-highlight-text="searchTe"> {{item.subcategory_name}} </span>
+                            </md-item-template>
+                            <md-not-found>
+                                No Location matching "{{searchTe}}" were found.
+                            </md-not-found>
+                        </md-autocomplete>
+                    </div>
+                    <div class="col-md-3">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Life Time</label>
+                            <input ng-model="Assetcategory.lifetime" placeholder="Life Time"
+                                   type="text"
+                            />
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-3">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Depreciation Type</label>
+                            <md-select md-container-class="popup_select" ng-model="Assetcategory.deptmenttype">
+                                <md-option ng-repeat="item in departmenttype" ng-value="item.data">
+                                    {{item.data}}
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-3">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Depreciation Rate </label>
+                            <input ng-model="Assetcategory.deptrate" placeholder="Depreciation Rate"
+                                   type="text">
+                        </md-input-container>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="col-md-3">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Barcode </label>
+                            <md-select md-container-class="popup_select" ng-model="Assetcategory.barcoderepeat">
+                                <md-option ng-repeat="y in barcoderepeat" ng-value="y.id">
+                                    {{y.data}}
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-3">
+                        <md-input-container class="md-block inputcontainer">
+                            <label>Remark</label>
+                            <input ng-model="Assetcategory.asset_remark" placeholder="Remark"
+                                   type="text"/>
+                        </md-input-container>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <md-button class="btn btn-info custbutton" ng-click="Save(Assetcategory)"
+                           ng-disabled="enable_update">Submit
+                    <md-tooltip>Submit</md-tooltip>
+                </md-button>
+                <md-button class="md-raised" data-dismiss="modal" ng-href="fa_asset_catgry_summary">Back
+                    <md-tooltip>close</md-tooltip>
+                </md-button>
+            </div>
+        </div>
+    </div>
+
+
+    {% endverbatim %}
+    <script>
+var app = angular.module('dateapp', ['ngMaterial', 'ui.bootstrap', 'AppCommon', 'ngMessages'])
+    .config(function($httpProvider) {
+        $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+        $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+    });
+app.controller('datectrl', function($scope, newservice, $window, $mdDialog,$mdDateLocale, $rootScope, $filter) {
+var detail = JSON.parse(sessionStorage.getItem('today'));
+    var employgid = detail.employee_gid;
+    $scope.employgid = detail.employee_gid;
+    $scope.entity_gid = detail.entity_gid;
+    $scope.Assetcategory=[];
+    var td = detail.date
+    $scope.cap_date = convertdate(td);
+     $mdDateLocale.formatDate = function(date) {
+            return $filter('date')(date, "dd-MMM-yyyy");
+        };
+
+    $scope.loading = function () {
+		$mdDialog.show({
+			templateUrl: 'loaderSpinner',
+			parent: angular.element(document.body),
+			clickOutsideToClose: false
+		});
+	};
+	$scope.loading_popup = function () {
+		$mdDialog.show({
+			templateUrl: 'loaderSpinner',
+			parent: angular.element(document.getElementById('viewmodal')),
+			clickOutsideToClose: false
+		});
+	};
+    $scope.endloading = function() {
+        $mdDialog.hide();
+    };
+    $scope.departmenttype = [{
+    id: 'A',
+    data: 'WDV'
+    }, {
+        id: 'B',
+        data: 'SLM'
+    }];
+
+    $scope.departmentrate = [{
+        id: 'A',
+        data: '22.3'
+    }, {
+        id: 'B',
+        data: '23.3'
+    }];
+    $scope.barcoderepeat = [{
+        id: 'Y',
+        data: 'YES'
+    }, {
+        id: 'N',
+        data: 'NO'
+    }];
+
+<!--    $scope.subcategory=[{id: 'A', data: 'A'}, {id:'B', data:'B'}, {id:'C', data:'C'}]-->
+    loaddata();
+
+    function loaddata() {
+        var data = {
+            "Params": {
+                "FILTER": {
+                },
+                "CLASSIFICATION": {
+                    "Entity_Gid": $scope.entity_gid,
+                }
+            }
+        };
+
+        debugger;
+        var get_asset_cat = newservice.asset_cat(data)
+        $scope.loading();
+        get_asset_cat.then(function(result) {
+            $scope.main = result.data.DATA;
+            $scope.subcategorydetails = $scope.main;
+        }).finally($scope.endloading);
+    }
+ $scope.querySearch = gotoexe;
+
+        function gotoexe(query) {
+            var result = $filter('filter')($scope.subcategorydetails, {
+                'subcategory_name': query
+            });
+            return result;
+        }
+
+    $scope.Save = function(Assetcategory) {
+    debugger;
+         if ($scope.selectedcat) {
+                     $scope.sub_cat_asset_gid = $scope.selectedcat.subcategory_categorygid;
+                     $scope.sub_cat_asset = $scope.selectedcat.subcategory_name;
+                        }
+       var data = {
+           "Params": {
+                   "DETAILS": {
+                   "Asset_SubCategory_Gid":$scope.sub_cat_asset_gid,
+                   "Asset_SubCatName":$scope.sub_cat_asset,
+                   "Asset_LifeTime":Assetcategory.lifetime,
+                   "Asset_DepType":Assetcategory.deptmenttype,
+                   "Asset_DepRate":Assetcategory.deptrate,
+                   "AssetCat_Remarks":Assetcategory.asset_remark},
+                           "CLASSIFICATION": {
+                           "Entity_Gid":$scope.entity_gid
+                            },
+                           }
+                         }
+
+       var detaildata = {
+           "Group": "FA_CATEGORY_SET",
+           "Type": "ASSET_CAT",
+            "Sub_Type": "MST",
+            "Action": "INSERT",
+             "Employee_Gid": $scope.employgid,
+           "json": data,
+       }
+       $scope.assetcatgry =[];
+       var set_assetcatgry = newservice.Assetcatgryadd(detaildata)
+       $scope.loading();
+       set_assetcatgry.then(function(result) {
+               $scope.assetcatgry = result.data.MESSAGE;
+               //alert(JSON.stringify($scope.assetcatgry ));
+               if($scope.assetcatgry =="SUCCESS"){
+               alert(JSON.stringify($scope.assetcatgry));
+               $window.location.href="fa_asset_catgry_master_plus";
+                }
+               else{
+               alert(JSON.stringify($scope.assetcatgry ))
+               }
+           }).finally($scope.endloading),
+           function(err) {
+               alert('no data');
+           };
+   }
+
+
+
+});
+app.service('newservice', function($http) {
+
+    this.Assetcatgryadd = function(detaildata) {
+       var response = $http.post(Appname + "/fa_category/", detaildata);
+       return response;
+       }
+
+       this.asset_cat = function(data) {
+        var response = $http.post(Appname + "/fa_category_get/", {
+            params: {
+                "Sub_Type": "SUB_CATEGORY",
+                "Type": "CATEGORY",
+                "Group": "FA_ASSET_CATEGORY",
+                "json": data,
+            }
+        });
+        return response;
+    }
+
+});
+
+
+
+    </script>
+    {% endblock %}

@@ -1,0 +1,195 @@
+{% extends 'Shared/mainLayout.html' %}
+{% load static from staticfiles %}
+{% block title %} Approval {% endblock %}
+{% block content %}
+{% csrf_token %}
+{% verbatim %}
+<div class="maincontent">
+    <div ng-app="App" ng-controller="Ctrl" class="container container1">
+        <div class="row">
+            <div class="row-header col-lg-12 col-sm-12">
+                <h4>PR Approval Summary</h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-3">
+                    <md-input-container class="md-block inputcontainer">
+                        <label>PR No</label>
+                        <input id="premarks" maxlength="256" ng-model="prheader_no" ng-change="filtersearch()"/>
+                    </md-input-container>
+                </div>
+
+            </div>
+        </div>
+        <div class="row table-responsive">
+            <div class="col-md-12 col-lg-12 col-sm-12">
+                <table class="table table-striped table-bordered table-condensed table-hover md-primary"
+                       md-progress="deferred">
+                    <thead class="header">
+                    <tr>
+                        <th>S.No</th>
+                        <th>PR No</th>
+                        <th>PR Date</th>
+                        <th>Commodity</th>
+                         <th>Supplier Name</th>
+                        <th>PR Raised By</th>
+                        <th>PR Status</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="prapp in prappheader.slice(((currentPage-1)*itemsPerPage),((currentPage)*itemsPerPage)) | filter:search:strict">
+                        <td>
+                            <center>{{((currentPage-1)*itemsPerPage)+$index+1}}</center>
+                        </td>
+                        <td>{{prapp.prheader_no }}</a></td>
+                        <td>{{prapp.prheader_date| date:'dd-MMM-y'}}</td>
+                        <td>{{prapp.commodity_name}}</td>
+                        <td>{{prapp.supplier_name}}</td>
+                        <td>{{prapp.employee_name}}</td>
+                        <td >{{prapp.prheader_status}}</td>
+                        <td align="right">{{prapp.prheader_totalamount}}</td>
+                        <td align="center">
+                            <a href="approvalview"> <span class="editlink" ng-click="prviewapp(prapp.prheader_gid,prapp.prheader_status,prapp.commodity_name,prapp.prheader_totalamount)">
+                               <i class="material-icons">visibility</i>
+                                <md-tooltip>View</md-tooltip>
+                             </span></a>
+                        </td>
+                      
+                    </tr>
+                    <tr ng-show="prappheader.length ==  0">
+                        <td class="warning" colspan="10">
+                            No Records Found.
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="9">
+                            <ul uib-pagination total-items="prappheader.length" ng-model="currentPage" max-size="maxSize"
+                                class="pagination-sm" boundary-links="true" items-per-page="itemsPerPage"></ul>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+          
+        </div>
+    </div>
+</div>
+{% endverbatim %}
+<script>
+var myApp = angular.module('App', ['ngMaterial','ui.bootstrap']).config(function($httpProvider) {
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+});
+
+myApp.controller('Ctrl', ['$scope','$filter','prapprovelservice','$mdDialog', function($scope,$filter,prapprovelservice,$mdDialog) {
+     $scope.currentPage=1;
+    $scope.maxSize=3;
+    $scope.itemsPerPage=10;
+    $scope.maintable = [];
+    var detail = JSON.parse(sessionStorage.getItem('today'));
+        $scope.employgid = detail.employee_gid;
+        $scope.entity_gid = detail.entity_gid;
+        $scope.employee_code=detail.employee_code;
+    $scope.filtersearch = function() {
+        $scope.prappheader = $filter('filter')($scope.maintable, { "prheader_no": $scope.prheader_no });
+        $scope.userTotalItems = $scope.prappheader.length;
+    }
+
+
+  var getprheader=prapprovelservice.getprheader($scope.employee_code)
+       getprheader.then(function (result){
+        debugger;
+        $scope.maintable =result.data;
+        $scope.prappheader = $scope.maintable;
+        $scope.userTotalItems = $scope.prappheader.length;
+        $scope.Totalpages = Math.ceil($scope.prappheader.length / $scope.itemsPerPage);
+            }),function(){
+             alert('no data');
+         };
+
+     $scope.prviewapp = function(prheader_gid,status,prheader_commodity_gid,prheader_totalamount) {
+        $scope.prheader_gid1=prheader_gid;
+debugger;
+         sessionStorage.setItem('prapp_gid', prheader_gid);
+         sessionStorage.setItem('commodity_gid', prheader_commodity_gid);
+         sessionStorage.setItem('prheader_totalamount', prheader_totalamount);
+        var getprheaderstatus=prapprovelservice.getstatusprocess('gal_trn_tprheader',prheader_gid,status)
+       getprheaderstatus.then(function (result){
+            if(result.data=='Proceed'){
+                 $window.location.href = "approvalview";
+                 
+            }
+            else{
+                    alert(result.data);
+                    var getprheader=prapprovelservice.getprheader()
+                    getprheader.then(function (result){
+                    $scope.maintable =result.data;
+                    $scope.prappheader = $scope.maintable;
+                    $scope.userTotalItems = $scope.prappheader.length;
+                    $scope.Totalpages = Math.ceil($scope.prappheader.length / $scope.itemsPerPage);
+            }),function(){
+             alert('no data');
+         };
+            }
+        }),function(){
+             alert('no data');
+         };
+//delmat  level 
+
+
+     }
+
+     var data = {
+                'prheader_gid': parseInt($scope.prheader_gid1)
+            }
+      if($scope.prheader_gid1=NaN)      
+    {var commodityname = prapprovelservice.delmat(data);
+            commodityname.then(function (commodityname) {
+                    
+
+                    $scope.commodityname = JSON.parse(commodityname.data);})
+
+
+     $scope.data = $filter('filter')($scope.commodityname, {
+                    "employee_gid": $scope.employgid
+                });}
+
+  }]);
+
+ myApp.service("prapprovelservice", function ($http) {
+    this.getprheader = function (ev) {
+        var response = $http.post(Appname + "/Prapproval_get/",
+        
+        {
+         "empcode":ev,
+         "Action":"PR"
+        });
+        return response;
+    }
+
+    this.getstatusprocess= function (tablename,gid,status) {
+        var response = $http.post(Appname+"/get_allqueue_status/",{params:{
+         "table_name":tablename,
+        "gid":gid,
+        "status":status}});
+        return response;
+    }
+       //Approval
+       this.delmat = function (data) {
+            var response = $http.post(Appname + "/approvalview/", data)
+
+            return response;
+        }
+ });
+
+
+</script>
+{% endblock %}
+
+
+

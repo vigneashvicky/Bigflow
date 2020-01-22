@@ -1,0 +1,259 @@
+{%verbatim%}
+<div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade" data-backdrop="static"
+     data-keyboard="false"
+     id="catandsubcatpresent"
+     role="dialog" tabindex="-1">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header popup-header">
+                <h5 class="modal-title">
+                    ADD NEW CATEGORY AND SUBCATEGORY
+                    <button aria-label="Close" class="close" data-dismiss="modal" ng-click="cancel()" type="button">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </h5>
+            </div>
+            <div class="md-dialog-content" ng-if="empsmry.length!=0">
+                <div class="col-md-12">
+                    <div align="center">
+                        <md-button class="md-raised md-warn"
+                                   ng-disabled="cate"
+                                   ng-click="addcategory()">
+                            ADD CATEGORY
+                        </md-button>
+                        <md-button class="md-raised md-primary"
+                                   ng-disabled="subcate"
+                                   ng-click="addsubcategory()">
+                            ADD SUBCATEGORY
+                        </md-button>
+                    </div>
+                </div>
+                <div class="row">
+                    <form name="myForm">
+                        <div class="col-md-12" ng-hide="newcategory">
+                            <div class="col-md-3">
+                                <md-input-container class="md-block inputcontainer">
+                                    <label>Category Name</label>
+                                    <input id="name" type="text"
+                                           maxlength="20"
+                                           ng-model="pop.catname" ng-required="{{pop.form}}">
+
+                                </md-input-container>
+
+                            </div>
+
+                            <div class="col-md-2">
+                                <md-input-container class="md-block inputcontainer">
+                                    <label>category Code</label>
+                                    <input type="text"
+                                           minlength="3"
+                                           maxlength="16"
+                                           ng-model="pop.catcode" required>
+                                </md-input-container>
+                            </div>
+                            <div class="col-md-1">
+                                <a href="" title="Category code must be exact 3 letters">
+                                    <i class="material-icons">announcement</i>
+                                </a>
+                            </div>
+                            <div class="col-md-2">
+                                <md-input-container class="md-block inputcontainer">
+                                    <label>Category glno</label>
+                                    <input valid-number
+                                           minlength="3"
+                                           maxlength="16"
+                                           ng-model="pop.catglno" required>
+                                </md-input-container>
+                            </div>
+                            <div class="col-md-1">
+                                <a href="" title="Category glno must be exact 3 numbers">
+                                    <i class="material-icons">announcement</i>
+                                </a>
+                            </div>
+                            <div class="col-md-2">
+                                <md-input-container class="md-block inputcontainer">
+                                    <label>Category No</label>
+                                    <input valid-number
+                                           minlength="3"
+                                           maxlength="3"
+                                           ng-model="pop.catno" required>
+                                </md-input-container>
+                            </div>
+                            <div class="col-md-1">
+                                <a href="" title="Category no must be exact 3 numbers ">
+                                    <i class="material-icons">announcement</i>
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-md-12" ng-hide="newcategory">
+                    <div class="col-md-3" style="margin-top:33px;">
+                        <p>Selected Value: Is_Active
+                            <span class="radioValue"
+                                  ng-if="pop.group1 == 'Y' ? color='green':color='red'"
+                                  style="color:{{color}}">
+                            <b>'{{pop.group1}}'</b>
+                        </span>
+                        </p>
+                    </div>
+                    <div class="col-md-1" style="margin-top:33px;">
+                        <md-radio-group ng-model="pop.group1"
+                                        ng-init="pop.group1 = 'Y'"
+                                        ng-click="chk(pop.group1)">
+
+                            <div class="col-md-1">
+                                <md-radio-button
+                                        value="Y"
+                                        class="md-primary">
+                                    YES
+                                </md-radio-button>
+                            </div>
+                            <div class="col-md-1">
+                                <md-radio-button
+                                        value="N"
+                                        class="md-primary">
+                                    NO
+                                </md-radio-button>
+                            </div>
+                        </md-radio-group>
+                    </div>
+                </div>
+                <div class="row">
+                    <form name="myFormsub">
+                        <br>
+                        <div class="col-md-12" ng-hide="newsubcategory">
+                            <div class="col-md-3">
+                               <md-input-container class="md-block inputcontainer">
+                                <label>Category Name</label>
+                                <input type="text"
+                                       ng-model="catc"
+                                       ng-disabled="true">
+                            </md-input-container>
+                            </div>
+                            <div class="col-md-2">
+                                <md-input-container class="md-block inputcontainer">
+                                <label>Category No</label>
+                                <input type="text"
+                                       ng-model="catn"
+                                       ng-disabled="true">
+                            </md-input-container>
+                            </div>
+                        </div>
+                            <div class="col-md-12" ng-hide="newsubcategory">
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block inputcontainer">
+                                        <label>SubCategory Name</label>
+                                        <input type="text"
+                                               maxlength="20"
+                                               ng-model="pop.subname" required>
+                                    </md-input-container>
+                                </div>
+                                <div class="col-md-2">
+                                    <md-input-container class="md-block inputcontainer">
+                                        <label>SubCategory Code</label>
+                                        <input type="text"
+                                               minlength="3"
+                                               maxlength="20"
+                                               ng-model="pop.subcode" required>
+                                    </md-input-container>
+                                </div>
+                                <div class="col-md-1">
+                                    <a href="" title="Category code must be exact 3 letters">
+                                        <i class="material-icons">announcement</i>
+                                    </a>
+                                </div>
+                                <div class="col-md-2" ng-hide="true">
+                                    <md-input-container class="md-block inputcontainer">
+                                        <label>SubCategory glno</label>
+                                        <input
+                                               ng-model="pop.subglno"
+ ng-init="pop.subglno =1"
+                                               required>
+                                    </md-input-container>
+                                </div>
+                                <div class="col-md-1" ng-hide="true">
+                                    <a href="" title="Category glno must be exact 3 numbers">
+                                        <i class="material-icons">announcement</i>
+                                    </a>
+                                </div>
+                                <div class="col-md-2">
+                                    <md-input-container class="md-block inputcontainer">
+                                        <label>SubCategory No</label>
+                                        <input valid-number
+                                               minlength="3"
+                                               maxlength="3"
+                                               ng-model="pop.subno" required>
+                                    </md-input-container>
+                                </div>
+                                <div class="col-md-1">
+                                    <a href="" title="Category no must be exact 3 numbers ">
+                                        <i class="material-icons">announcement</i>
+                                    </a>
+                                </div>
+                            </div>
+                    </form>
+                </div>
+                <div class="col-md-12" ng-hide="newsubcategory">
+                    <div class="col-md-3" style="margin-top:33px;">
+                        <p>Selected Value: Is_Active
+                            <span class="radioValue"
+                                  ng-if="pop.group1 == 'Y' ? color='green':color='red'"
+                                  style="color:{{color}}">
+                            <b>'{{pop.group1}}'</b>
+                        </span>
+                        </p>
+                    </div>
+                    <div class="col-md-1" style="margin-top:33px;">
+                        <md-radio-group ng-model="pop.group1"
+                                        ng-init="pop.group1 = 'Y'"
+                                        ng-click="chk(pop.group1)"
+
+                        >
+
+                            <div class="col-md-1">
+                                <md-radio-button
+                                        value="Y"
+                                        class="md-primary">
+                                    YES
+                                </md-radio-button>
+                            </div>
+                            <div class="col-md-1">
+                                <md-radio-button
+                                        value="N"
+                                        class="md-primary">
+                                    NO
+                                </md-radio-button>
+                            </div>
+                        </md-radio-group>
+                    </div>
+                </div>
+                <div class="row">
+                    <div align="center" class="col-md-12" ng-hide="commonbutton">
+                        <md-button
+                                ng-hide="newcategory"
+                                class="btn btn-info custbutton"
+                                ng-disabled="(!myForm.$valid)"
+                                ng-click="submit(pop)">
+                            Submit
+                        </md-button>
+                        <md-button
+                                ng-hide="newsubcategory"
+                                class="btn btn-info custbutton"
+                                ng-disabled="(!(myFormsub.$valid))"
+                                ng-click="submit(pop)">
+                            Submit
+                        </md-button>
+                        <md-button class="md-raised"
+                                   data-dismiss="modal"
+                                   ng-click="cancel(pop)">
+                            Close
+                        </md-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endverbatim %}
