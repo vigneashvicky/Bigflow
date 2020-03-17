@@ -1,12 +1,10 @@
 CREATE DEFINER=`developer`@`%` PROCEDURE `galley`.`sp_OtherCustomer_Set`(IN `ls_Action`varchar(32),IN `ls_Type`varchar(32),IN `ls_SubType` varchar(32),
 IN `lj_Details` json,IN `lj_Classification` json,IN `ls_Createby` varchar(32),OUT `Message` varchar(1024)
 )
-
-15:24
-
 sp_OtherCustomer_Set:BEGIN
 ### Ramesh Nov 30 2019
 #### GiT Test
+##### Again Check
 declare Query_Insert varchar(9000);
 Declare errno int;
 Declare msg varchar(1000);
