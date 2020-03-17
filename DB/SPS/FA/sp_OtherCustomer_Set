@@ -2,7 +2,7 @@ CREATE DEFINER=`developer`@`%` PROCEDURE `galley`.`sp_OtherCustomer_Set`(IN `ls_
 IN `lj_Details` json,IN `lj_Classification` json,IN `ls_Createby` varchar(32),OUT `Message` varchar(1024)
 )
 
-viki
+15:24
 
 sp_OtherCustomer_Set:BEGIN
 ### Ramesh Nov 30 2019
