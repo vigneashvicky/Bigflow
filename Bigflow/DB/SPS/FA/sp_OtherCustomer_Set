@@ -8,7 +8,7 @@ Declare errno int;
 Declare msg varchar(1000);
 declare countRow int;
 
-
+viki from git hub
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION,sqlwarning
     BEGIN
 
