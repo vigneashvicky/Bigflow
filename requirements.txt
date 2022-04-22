@@ -53,7 +53,7 @@ pymacaroons==0.13.0
 PyMySQL==0.9.2
 PyNaCl==1.1.2
 pyPdf==1.13
-PyPDF2==1.26.0
+PyPDF2==1.27.5
 pyRFC3339==1.0
 python-apt==1.6.4
 python-barcode==0.10.0
